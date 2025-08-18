@@ -1,45 +1,206 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import 'react-native-gesture-handler';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import React, { useState } from 'react';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+  createStackNavigator,
+  CardStyleInterpolators,
+} from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Animated, Easing } from 'react-native';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+import IntroPage from './src/screens/Intro';
+import LoginScreen from './src/screens/Login';
+import SignUpScreen from './src/screens/SignUp';
+import IntroOnboarding from './src/screens/IntroOnboarding';
+import Onboarding_FitnessGoal from './src/screens/onboarding/Onboarding_FitnessGoal';
+import Onboarding_TypeofTraining from './src/screens/onboarding/Onboarding_TypeofTraining';
+import Onboarding_Schedule from './src/screens/onboarding/Onboarding_Schedule';
+import Onboarding_Equipment from './src/screens/onboarding/Onboarding_Equipment';
+import Onboarding_FitnessLevel from './src/screens/onboarding/Onboarding_FitnessLevel';
+import Onboarding_PersonalData from './src/screens/onboarding/Onboarding_PersonalData';
+
+import DevScreen from './src/screens/DevScreen';
+
+import NavigationProgress from './src/components/navigationprogress';
+
+import ArrowLeft from './src/icons/arrowleft';
+
+import Colors from './src/variables/colors';
+
+type StackParamList = {
+  DevScreen: undefined;
+  Intro: undefined;
+  Login: undefined;
+  SignUp: undefined;
+  IntroOnboarding: undefined;
+  Onboarding_FitnessGoal: undefined;
+  Onboarding_TypeofTraining: undefined;
+  Onboarding_Schedule: undefined;
+  Onboarding_Equipment: undefined;
+  Onboarding_FitnessLevel: undefined;
+  Onboarding_PersonalData: undefined;
+};
+
+const Stack = createStackNavigator<StackParamList>();
+
+const onboardingScreens: (keyof StackParamList)[] = [
+  'Onboarding_FitnessGoal',
+  'Onboarding_TypeofTraining',
+  'Onboarding_Schedule',
+  'Onboarding_Equipment',
+  'Onboarding_FitnessLevel',
+  'Onboarding_PersonalData',
+];
+
+const simpleSlideAndFade = ({ current, layouts }: any) => ({
+  cardStyle: {
+    opacity: Animated.multiply(current.progress, current.progress),
+    transform: [
+      {
+        translateX: current.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [layouts.screen.width / 2, 0],
+        }),
+      },
+    ],
+  },
+});
+
+const simpleFade = ({ current }: any) => ({
+  cardStyle: {
+    opacity: current.progress,
+  },
+});
+
+const MyTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: Colors.white,
+  },
+};
+
+const App: React.FC = () => {
+  const [currentRoute, setCurrentRoute] =
+    useState<keyof StackParamList>('Intro');
+
+  const calculateProgress = (route: keyof StackParamList) => {
+    switch (route) {
+      case 'Onboarding_FitnessGoal':
+        return 0.1;
+      case 'Onboarding_TypeofTraining':
+        return 0.25;
+      case 'Onboarding_Schedule':
+        return 0.4;
+      case 'Onboarding_Equipment':
+        return 0.55;
+      case 'Onboarding_FitnessLevel':
+        return 0.7;
+      case 'Onboarding_PersonalData':
+        return 0.85;
+      default:
+        return 0;
+    }
+  };
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
+      <NavigationContainer
+        onStateChange={state => {
+          if (!state) return;
+          const routeName = state.routes[state.index]
+            .name as keyof StackParamList;
+          setCurrentRoute(routeName);
+        }}
+        theme={MyTheme}
+      >
+        {onboardingScreens.includes(currentRoute) && (
+          <NavigationProgress
+            leftContent={<ArrowLeft style={{}} />}
+            centerContent={null} // aggiunto
+            rightContent={null}
+            progress={calculateProgress(currentRoute)}
+            onLeftClick={() => {}} // aggiunto
+            onRightClick={() => {}}
+          />
+        )}
+        <Stack.Navigator
+          initialRouteName="Intro"
+          screenOptions={{
+            gestureEnabled: true,
+            cardStyleInterpolator: simpleFade,
+            transitionSpec: {
+              open: {
+                animation: 'timing',
+                config: { duration: 150, easing: Easing.inOut(Easing.ease) },
+              },
+              close: {
+                animation: 'timing',
+                config: { duration: 150, easing: Easing.inOut(Easing.ease) },
+              },
+            },
+          }}
+        >
+          <Stack.Screen
+            name="DevScreen"
+            component={DevScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Intro"
+            component={IntroPage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUpScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="IntroOnboarding"
+            component={IntroOnboarding}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Onboarding_FitnessGoal"
+            component={Onboarding_FitnessGoal}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Onboarding_TypeofTraining"
+            component={Onboarding_TypeofTraining}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Onboarding_Schedule"
+            component={Onboarding_Schedule}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Onboarding_Equipment"
+            component={Onboarding_Equipment}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Onboarding_FitnessLevel"
+            component={Onboarding_FitnessLevel}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Onboarding_PersonalData"
+            component={Onboarding_PersonalData}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+};
 
 export default App;
