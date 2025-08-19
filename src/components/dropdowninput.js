@@ -4,7 +4,7 @@ import {
   Text,
   TextInput as RNTextInput,
   StyleSheet,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
@@ -17,7 +17,7 @@ import ChevronUp from '../icons/chevronup';
 
 export default function DropdownInput({
   value,
-  onPress, // <-- callback per aprire la tua bottomsheet esterna (opzionale)
+  onPress, // callback per aprire bottomsheet esterna (opzionale)
   placeholder = '',
   label = '',
   errorMessage = '',
@@ -25,14 +25,14 @@ export default function DropdownInput({
   style,
   ...rest
 }) {
-  // stato solo per cambiare la freccia
+  // stato per cambiare la freccia
   const [isOpen, setIsOpen] = useState(false);
 
   const isError = !!errorMessage;
-  const isActive = isOpen || (!!value && value.length > 0);
   const isDisabled = disabled;
+  const isActive = isOpen || (!!value && value.length > 0);
 
-  // Colori
+  // Colori dinamici
   const borderColor = isError
     ? Colors.error
     : isActive
@@ -45,9 +45,9 @@ export default function DropdownInput({
     ? Colors.error
     : Colors.darkBlue;
 
-  const textColor = isDisabled ? Colors.grey200 : Colors.darkBlue;
+  const textColor = isDisabled ? Colors.grey300 : Colors.darkBlue;
 
-  // Gestore di apertura: cambia solo la freccia e chiama l'eventuale onPress (per bottomsheet)
+  // Gestore apertura: toggle freccia e chiama onPress
   const handlePress = () => {
     if (isDisabled) return;
     setIsOpen(prev => !prev);
@@ -60,44 +60,47 @@ export default function DropdownInput({
         <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
       ) : null}
 
-      <TouchableOpacity
-        style={[
-          styles.inputContainer,
-          { borderColor, opacity: isDisabled ? 0.6 : 1 },
-          Shadows.sm,
-        ]}
-        activeOpacity={0.7}
-        onPress={handlePress}
-        disabled={isDisabled}
-      >
-        <RNTextInput
-          style={[styles.input, { color: textColor }]}
-          value={value}
-          placeholder={placeholder}
-          placeholderTextColor={Colors.grey400}
-          editable={false} // NON editabile!
-          pointerEvents="none" // evita focus accidentali
-          {...rest}
-        />
+      <TouchableWithoutFeedback onPress={handlePress}>
+        <View
+          style={[
+            styles.inputContainer,
+            { borderColor, backgroundColor: Colors.white, opacity: isDisabled ? 0.6 : 1 },
+            Shadows.sm,
+          ]}
+        >
+          <RNTextInput
+            style={[styles.input, { color: textColor }]}
+            value={value}
+            placeholder={placeholder}
+            placeholderTextColor={Colors.grey400}
+            editable={false} // NON editabile!
+            pointerEvents="none" // evita focus accidentali
+            {...rest}
+          />
 
-        {isError ? (
-          <View style={styles.iconWrapper}>
-            <AlertIcon width={16} height={16} fill={Colors.error} />
-          </View>
+          {isError ? (
+            <View style={styles.iconWrapper}>
+              <AlertIcon width={16} height={16} fill={Colors.error} />
+            </View>
+          ) : (
+            <View style={styles.iconWrapper}>
+              {isOpen ? (
+                <ChevronUp color={Colors.darkBlue} />
+              ) : (
+                <ChevronDown color={Colors.darkBlue} />
+              )}
+            </View>
+          )}
+        </View>
+      </TouchableWithoutFeedback>
+
+      <View style={styles.errorWrapper}>
+        {isError && errorMessage ? (
+          <Text style={styles.errorText}>{errorMessage}</Text>
         ) : (
-          <View style={styles.iconWrapper}>
-            {isOpen ? (
-              <ChevronUp color={Colors.darkBlue} />
-            ) : (
-              <ChevronDown color={Colors.darkBlue} />
-            )}
-          </View>
+          <Text style={styles.errorText}> </Text> // spazio invisibile per mantenere altezza
         )}
-      </TouchableOpacity>
-
-      {isError && errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
-      ) : null}
+      </View>
     </View>
   );
 }
@@ -106,7 +109,7 @@ const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
     display: 'flex',
-    height: '60px',
+    height: 'auto',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -116,9 +119,9 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 16,
     paddingHorizontal: Spacing.xs,
-    paddingVertical: 0, // esplicito
+    paddingVertical: 0,
     position: 'relative',
-    top: 9, // verrà applicato visto che c'è position relative
+    top: 9,
     textTransform: 'uppercase',
     backgroundColor: Colors.white,
     ...Typography.googleSansCode.xsRegular,
@@ -126,18 +129,18 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: Colors.white,
     borderWidth: Borders.widths.thin,
     borderRadius: Borders.radius.regular,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.m,
-    backgroundColor: Colors.white,
   },
   input: {
     flex: 1,
-    backgroundColor: 'transparent',
     borderWidth: 0,
+    backgroundColor: 'transparent',
     ...Typography.manrope.smRegular,
-    height: 20,
+    height: 24,
   },
   iconWrapper: {
     marginLeft: Spacing.sm,
@@ -145,9 +148,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   errorText: {
-    marginTop: 2,
-    marginLeft: Spacing.md,
     color: Colors.error,
     ...Typography.manrope.xsMedium,
+  },
+  errorWrapper: {
+    minHeight: 18,
+    marginLeft: Spacing.md,
   },
 });

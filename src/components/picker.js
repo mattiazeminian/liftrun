@@ -25,13 +25,20 @@ export default function PickerInput({
   placeholder = '',
   label = '',
   disabled = false,
+  errorMessage = '', // aggiunto prop per errore
   style,
   min = 110,
   max = 210,
   unitText = 'KG',
+  defaultIndex,
 }) {
   const numbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
-  const defaultIndex = Math.floor(numbers.length / 2);
+  const effectiveDefaultIndex =
+    defaultIndex !== undefined &&
+    defaultIndex >= 0 &&
+    defaultIndex < numbers.length
+      ? defaultIndex
+      : Math.floor(numbers.length / 2);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(
@@ -61,21 +68,21 @@ export default function PickerInput({
     setModalVisible(false);
   };
 
-  const handleSelectIndex = (index) => {
+  const handleSelectIndex = index => {
     setSelectedIndex(index);
     onValueChange(numbers[index].toString());
     setModalVisible(false);
   };
 
-  // Aggiornamento fluido durante lo scroll
-  const handleScroll = (event) => {
+  // fluid update while scrolling
+  const handleScroll = event => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setSelectedIndex(Math.max(0, Math.min(numbers.length - 1, index)));
   };
 
-  // Fine scroll, assicura selezione esatta
-  const handleMomentumScrollEnd = (e) => {
+  // end scroll to set exact selection
+  const handleMomentumScrollEnd = e => {
     const offsetY = e.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setSelectedIndex(Math.max(0, Math.min(numbers.length - 1, index)));
@@ -89,6 +96,8 @@ export default function PickerInput({
 
   const labelColor = disabled ? Colors.grey200 : Colors.darkBlue;
 
+  const isError = !!errorMessage;
+
   return (
     <View style={[styles.wrapper, style]}>
       {label ? (
@@ -101,12 +110,14 @@ export default function PickerInput({
             styles.inputContainer,
             { borderColor, opacity: disabled ? 0.6 : 1 },
             Shadows.sm,
+            isError && { borderColor: Colors.error }, // bordo rosso se errore
           ]}
         >
           <Text
             style={[
               styles.input,
               { color: value ? Colors.darkBlue : Colors.grey400 },
+              isError && { color: Colors.error }, // testo rosso se errore
             ]}
           >
             {value || placeholder}
@@ -114,6 +125,15 @@ export default function PickerInput({
           <Text style={styles.cmText}>{unitText}</Text>
         </View>
       </TouchableWithoutFeedback>
+
+      {/* Wrapper per messaggio errore come in TextInput */}
+      <View style={styles.errorWrapper}>
+        {isError ? (
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        ) : (
+          <Text style={styles.errorText}></Text>
+        )}
+      </View>
 
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.overlay}>
@@ -133,7 +153,7 @@ export default function PickerInput({
                 keyboardShouldPersistTaps="handled"
                 ref={flatListRef}
                 data={numbers}
-                keyExtractor={(item) => item.toString()}
+                keyExtractor={item => item.toString()}
                 showsVerticalScrollIndicator={false}
                 snapToInterval={ITEM_HEIGHT}
                 decelerationRate="fast"
@@ -150,7 +170,11 @@ export default function PickerInput({
                   const isSelected = index === selectedIndex;
                   return (
                     <TouchableOpacity
-                      style={isSelected ? styles.selectedItemContainer : styles.modalItem}
+                      style={
+                        isSelected
+                          ? styles.selectedItemContainer
+                          : styles.modalItem
+                      }
                       activeOpacity={0.7}
                       onPress={() => handleSelectIndex(index)}
                     >
@@ -178,6 +202,8 @@ export default function PickerInput({
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
+    display: 'flex',
+    height: 'auto',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -205,10 +231,12 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     ...Typography.manrope.smRegular,
+    lineHeight: 26,
   },
   cmText: {
     ...Typography.googleSansCode.xsMedium,
     fontSize: 10,
+    lineHeight: 24,
   },
   overlay: {
     flex: 1,
@@ -287,5 +315,13 @@ const styles = StyleSheet.create({
     ...Typography.googleSansCode.xsRegular,
     color: Colors.darkBlue,
     fontSize: 14,
+  },
+  errorWrapper: {
+    minHeight: 18, // uguale a TextInput
+    marginLeft: Spacing.md,
+  },
+  errorText: {
+    color: Colors.error,
+    ...Typography.manrope.xsMedium,
   },
 });

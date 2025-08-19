@@ -5,12 +5,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Text,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import TextInput from '../../components/textinput';
@@ -27,6 +24,7 @@ import IdIcon from '../../icons/idicon';
 import CmIcon from '../../icons/cmicon';
 import KgIcon from '../../icons/kgicon';
 
+import PickerInput from '../../components/picker'; // import tuo picker
 
 export default function PersonalDataForm() {
   const navigation = useNavigation();
@@ -84,51 +82,45 @@ export default function PersonalDataForm() {
           style={styles.input}
         />
 
-        <TextInput
+        {/*Age con PickerInput */}
+        <PickerInput
           label="Age"
-          placeholder="How old are you?"
           value={age}
-          onChangeText={text => {
-            const numericText = text.replace(/[^0-9]/g, '');
-            const numericValue = parseInt(numericText) || 0;
-            if (numericValue <= 99) {
-              setAge(numericText);
-            }
-          }}
-          keyboardType="numeric"
-          statusIconCustom={null}
+          onValueChange={setAge}
+          unitTitle="Age"
+          placeholder="How old are you?"
+          min={1}
+          max={99}
+          unitText="YRS"
           style={styles.input}
+          defaultIndex={19}
         />
 
-        <TextInput
+        {/*Height con PickerInput */}
+        <PickerInput
           label="Height"
-          placeholder="How much tall are you?"
           value={height}
-          onChangeText={text => {
-            const numericText = text.replace(/[^0-9]/g, '');
-            const numericValue = parseInt(numericText) || 0;
-            if (numericValue <= 250) {
-              setHeight(numericText);
-            }
-          }}
-          keyboardType="numeric"
-          statusIconCustom={<CmIcon width={16} height={16} />}
+          onValueChange={setHeight}
+          unitTitle="Height"
+          placeholder="How tall are you?"
+          min={110}
+          max={250}
+          unitText="CM"
+          defaultIndex={50}
           style={styles.input}
         />
 
-        <TextInput
+        {/*Weight con PickerInput */}
+        <PickerInput
           label="Weight"
-          placeholder="How much do you weight?"
           value={weight}
-          onChangeText={text => {
-            const numericText = text.replace(/[^0-9]/g, '');
-            const numericValue = parseInt(numericText) || 0;
-            if (numericValue <= 199) {
-              setWeight(numericText);
-            }
-          }}
-          keyboardType="numeric"
-          statusIconCustom={<KgIcon width={24} height={24} />}
+          onValueChange={setWeight}
+          unitTitle="Weight"
+          placeholder="How much do you weigh?"
+          min={30}
+          max={199}
+          defaultIndex={40}
+          unitText="KG"
           style={styles.input}
         />
 
@@ -215,7 +207,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    marginBottom: 0,
+    marginBottom: 0, 
   },
   button: {
     width: '100%',
