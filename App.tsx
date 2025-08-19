@@ -151,7 +151,7 @@ export default function App(): React.JSX.Element {
           />
         )}
         <Stack.Navigator
-          initialRouteName="Intro"
+          initialRouteName="Onboarding_FitnessGoal"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,

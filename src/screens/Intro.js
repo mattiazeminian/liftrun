@@ -13,6 +13,7 @@ import Button from '../components/button';
 
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
+import Colors from '../variables/colors';
 
 const window = Dimensions.get('window');
 
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    paddingTop: 92,
+    paddingTop: 80,
     paddingVertical: Spacing.xxl,
     paddingHorizontal: Spacing.md,
     flexDirection: 'column',
@@ -121,6 +122,7 @@ const styles = StyleSheet.create({
   heroDescription: {
     textAlign: 'center',
     ...Typography.manrope.mdRegular,
+    color: Colors.grey600,
   },
   buttonsContainer: {
     flexDirection: 'row',

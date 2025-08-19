@@ -14,6 +14,7 @@ import Button from '../components/button';
 
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
+import Colors from '../variables/colors';
 
 import ArrowLeft from '../icons/arrowleft';
 
@@ -117,5 +118,6 @@ const styles = StyleSheet.create({
   heroDescription: {
     textAlign: 'center',
     ...Typography.manrope.mdRegular,
+    color: Colors.grey600,
   },
 });

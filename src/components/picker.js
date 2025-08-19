@@ -184,8 +184,8 @@ const styles = StyleSheet.create({
   },
   label: {
     zIndex: 1,
-    marginLeft: 16,
-    marginRight: 16,
+    marginLeft: Spacing.md,
+    marginRight: Spacing.md,
     paddingHorizontal: Spacing.xs,
     position: 'relative',
     top: 9,
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.m,
   },
   handleBar: {
     width: 32,

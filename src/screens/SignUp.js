@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Dimensions, Image } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 
@@ -9,6 +16,10 @@ import Colors from '../variables/colors';
 
 import Button from '../components/button';
 import TextInput from '../components/textinput';
+import Navigation from '../components/navigation';
+
+// Importa la tua icona ArrowLeft (adatta il percorso se serve)
+import ArrowLeft from '../icons/arrowleft';
 
 const window = Dimensions.get('window');
 
@@ -24,13 +35,29 @@ export default function SignUpScreen() {
   // Handler validazione email
   function validateEmail(text) {
     setEmail(text);
+
     if (text.length === 0) {
       setEmailError('');
-    } else if (!text.includes('@')) {
-      setEmailError('Email is not valid!');
+      return;
+    }
+
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const domain = text.split('@')[1];
+
+    if (!regex.test(text) || !domain || domain.indexOf('.') === -1) {
+      setEmailError('Email is not valid or domain missing!');
     } else {
       setEmailError('');
     }
+  }
+
+  function isEmailValid(email) {
+    if (!email) return false;
+
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const domain = email.split('@')[1];
+
+    return regex.test(email) && domain && domain.indexOf('.') !== -1;
   }
 
   // Handler validazione password
@@ -46,10 +73,6 @@ export default function SignUpScreen() {
   }
 
   // Funzioni pure di validità (NON fanno setState)
-  function isEmailValid(email) {
-    return email.length > 0 && email.includes('@');
-  }
-
   function isPasswordValid(password) {
     return password.length >= 8;
   }
@@ -63,6 +86,14 @@ export default function SignUpScreen() {
       keyboardVerticalOffset={10} // o altro valore per margine sotto tastiera
     >
       <View style={styles.container}>
+        {/* Navigation */}
+        <Navigation
+          style={styles.navigationOverlay}
+          leftContent={<ArrowLeft></ArrowLeft>}
+          rightContent={null}
+          showCenter={false}
+          onLeftClick={() => navigation.goBack()}
+        />
         <View style={styles.content}>
           {/* Container logo + hero */}
           <View style={styles.headerContainer}>
@@ -90,6 +121,7 @@ export default function SignUpScreen() {
               autoComplete="on"
               keyboardType="email-address"
               errorMessage={emailError}
+              autoCapitalize="none"
             />
             <TextInput
               label="Password"
@@ -117,7 +149,7 @@ export default function SignUpScreen() {
                 },
               ]}
             >
-              SIGN IN
+              SIGN UP
             </Button>
           </View>
 
@@ -154,10 +186,18 @@ const styles = StyleSheet.create({
     width: window.width,
     height: window.height,
   },
+  navigationOverlay: {
+    position: 'absolute', // posizione assoluta per sovrapporre la navigation
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10, // zIndex alto per sovrapposizione
+    backgroundColor: 'transparent',
+  },
   content: {
     flex: 1,
     width: '100%',
-    paddingTop: 92,
+    paddingTop: 80,
     paddingVertical: Spacing.xxl,
     paddingHorizontal: Spacing.md,
     flexDirection: 'column',
