@@ -1,14 +1,20 @@
 import 'react-native-gesture-handler';
-
 import React, { useState } from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  DefaultTheme,
+  Theme,
+  NavigationState,
+} from '@react-navigation/native';
 import {
   createStackNavigator,
-  CardStyleInterpolators,
+  StackCardStyleInterpolator,
+  TransitionSpecs,
 } from '@react-navigation/stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Animated, Easing } from 'react-native';
 
+// Screens
 import IntroPage from './src/screens/Intro';
 import LoginScreen from './src/screens/Login';
 import SignUpScreen from './src/screens/SignUp';
@@ -19,16 +25,17 @@ import Onboarding_Schedule from './src/screens/onboarding/Onboarding_Schedule';
 import Onboarding_Equipment from './src/screens/onboarding/Onboarding_Equipment';
 import Onboarding_FitnessLevel from './src/screens/onboarding/Onboarding_FitnessLevel';
 import Onboarding_PersonalData from './src/screens/onboarding/Onboarding_PersonalData';
-
 import DevScreen from './src/screens/DevScreen';
 
+// Components
 import NavigationProgress from './src/components/navigationprogress';
-
 import ArrowLeft from './src/icons/arrowleft';
 
+// Variables
 import Colors from './src/variables/colors';
 
-type StackParamList = {
+// ✅ Tipi delle screen
+type RootStackParamList = {
   DevScreen: undefined;
   Intro: undefined;
   Login: undefined;
@@ -42,9 +49,10 @@ type StackParamList = {
   Onboarding_PersonalData: undefined;
 };
 
-const Stack = createStackNavigator<StackParamList>();
+const Stack = createStackNavigator<RootStackParamList>();
 
-const onboardingScreens: (keyof StackParamList)[] = [
+// Array delle schermate onboarding
+const onboardingScreens: (keyof RootStackParamList)[] = [
   'Onboarding_FitnessGoal',
   'Onboarding_TypeofTraining',
   'Onboarding_Schedule',
@@ -53,7 +61,11 @@ const onboardingScreens: (keyof StackParamList)[] = [
   'Onboarding_PersonalData',
 ];
 
-const simpleSlideAndFade = ({ current, layouts }: any) => ({
+// Animazioni custom
+const simpleSlideAndFade: StackCardStyleInterpolator = ({
+  current,
+  layouts,
+}) => ({
   cardStyle: {
     opacity: Animated.multiply(current.progress, current.progress),
     transform: [
@@ -67,13 +79,22 @@ const simpleSlideAndFade = ({ current, layouts }: any) => ({
   },
 });
 
-const simpleFade = ({ current }: any) => ({
+const simpleFade: StackCardStyleInterpolator = ({ current }) => ({
   cardStyle: {
     opacity: current.progress,
   },
 });
 
-const MyTheme = {
+// Transizioni: uso TransitionSpecs + config custom
+const customTransitionSpec = {
+  animation: 'timing' as const,
+  config: {
+    duration: 150,
+    easing: Easing.inOut(Easing.ease),
+  },
+};
+
+const MyTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
@@ -81,11 +102,11 @@ const MyTheme = {
   },
 };
 
-const App: React.FC = () => {
+export default function App(): React.JSX.Element {
   const [currentRoute, setCurrentRoute] =
-    useState<keyof StackParamList>('Intro');
+    useState<keyof RootStackParamList>('DevScreen');
 
-  const calculateProgress = (route: keyof StackParamList) => {
+  const calculateProgress = (route: keyof RootStackParamList): number => {
     switch (route) {
       case 'Onboarding_FitnessGoal':
         return 0.1;
@@ -107,10 +128,10 @@ const App: React.FC = () => {
   return (
     <SafeAreaProvider>
       <NavigationContainer
-        onStateChange={state => {
+        onStateChange={(state?: NavigationState) => {
           if (!state) return;
           const routeName = state.routes[state.index]
-            .name as keyof StackParamList;
+            ?.name as keyof RootStackParamList;
           setCurrentRoute(routeName);
         }}
         theme={MyTheme}
@@ -118,27 +139,25 @@ const App: React.FC = () => {
         {onboardingScreens.includes(currentRoute) && (
           <NavigationProgress
             leftContent={<ArrowLeft style={{}} />}
-            centerContent={null} // aggiunto
+            centerContent={null} // Aggiunto
             rightContent={null}
             progress={calculateProgress(currentRoute)}
-            onLeftClick={() => {}} // aggiunto
-            onRightClick={() => {}}
+            onLeftClick={() => {
+              /* ... */
+            }}
+            onRightClick={() => {
+              /* ... */
+            }}
           />
         )}
         <Stack.Navigator
-          initialRouteName="Intro"
+          initialRouteName="DevScreen"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,
             transitionSpec: {
-              open: {
-                animation: 'timing',
-                config: { duration: 150, easing: Easing.inOut(Easing.ease) },
-              },
-              close: {
-                animation: 'timing',
-                config: { duration: 150, easing: Easing.inOut(Easing.ease) },
-              },
+              open: customTransitionSpec,
+              close: customTransitionSpec,
             },
           }}
         >
@@ -201,6 +220,4 @@ const App: React.FC = () => {
       </NavigationContainer>
     </SafeAreaProvider>
   );
-};
-
-export default App;
+}

@@ -1,63 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableWithoutFeedback,
+  Modal,
+  FlatList,
+  Dimensions,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
 import Borders from '../variables/borders';
 import Shadows from '../variables/shadows';
-import AlertIcon from '../icons/alerticon';
+
+const ITEM_HEIGHT = 50;
+const { height, width } = Dimensions.get('window');
 
 export default function PickerInput({
   value,
-  onChangeText,
+  onValueChange,
   placeholder = '',
   label = '',
-  errorMessage = '',
   disabled = false,
   style,
-  statusIconCustom,
-  options = [], // <--- array di valori [{label, value}]
-  ...rest
+  min = 110,
+  max = 210,
 }) {
-  const [isFocused, setIsFocused] = useState(false);
+  const numbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  const initialIndex = numbers.indexOf(parseInt(value, 10));
+  const [modalVisible, setModalVisible] = useState(false);
+  const [tempIndex, setTempIndex] = useState(
+    initialIndex !== -1 ? initialIndex : 60,
+  );
+  const flatListRef = useRef(null);
 
-  const isDisabled = disabled;
-  const isError = !!errorMessage;
+  // Scroll al numero corretto all’apertura
+  useEffect(() => {
+    if (modalVisible && flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index: tempIndex,
+        animated: false,
+        viewPosition: 0.5,
+      });
+    }
+  }, [modalVisible]);
 
-  // Calcola stato "automatico"
-  let computedStatus = 'default';
-  if (isDisabled) {
-    computedStatus = 'disabled';
-  } else if (isError) {
-    computedStatus = 'error';
-  } else if (isFocused || value) {
-    computedStatus = 'active';
-  }
+  const handleContainerPress = () => {
+    if (!disabled) setModalVisible(true);
+  };
 
-  // Colore bordo
-  const borderColor =
-    computedStatus === 'error'
-      ? Colors.error
-      : computedStatus === 'active'
-      ? Colors.darkBlue
-      : Colors.grey200;
+  const handleSelect = index => {
+    setTempIndex(index);
+    onValueChange(numbers[index].toString());
+    setModalVisible(false);
+  };
 
-  // Colore etichetta
-  const labelColor =
-    computedStatus === 'disabled'
-      ? Colors.grey200
-      : computedStatus === 'error'
-      ? Colors.error
-      : Colors.darkBlue;
+  const handleScrollEnd = event => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    const clampedIndex = Math.max(0, Math.min(numbers.length - 1, index));
+    setTempIndex(clampedIndex);
+    onValueChange(numbers[clampedIndex].toString());
+  };
 
-  const textColor =
-    computedStatus === 'disabled' ? Colors.grey300 : Colors.darkBlue;
+  // Colore label e bordo dinamico
+  const borderColor = disabled
+    ? Colors.grey200
+    : value
+    ? Colors.darkBlue
+    : Colors.grey200;
+
+  const labelColor = disabled
+    ? Colors.grey200
+    : value
+    ? Colors.darkBlue
+    : Colors.darkBlue;
 
   return (
     <View style={[styles.wrapper, style]}>
@@ -65,74 +83,66 @@ export default function PickerInput({
         <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
       ) : null}
 
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={handleContainerPress}>
         <View
           style={[
             styles.inputContainer,
-            {
-              borderColor,
-              backgroundColor: Colors.white,
-              opacity: computedStatus === 'disabled' ? 0.6 : 1,
-            },
+            { borderColor, opacity: disabled ? 0.6 : 1 },
             Shadows.sm,
           ]}
         >
-          <Picker
-            enabled={!isDisabled}
-            selectedValue={value}
-            style={[styles.input, { color: textColor }]}
-            dropdownIconColor={textColor}
-            onValueChange={(itemValue) => {
-              onChangeText(itemValue);
-              setIsFocused(true);
-            }}
-            {...rest}
+          <Text
+            style={[
+              styles.input,
+              { color: value ? Colors.darkBlue : Colors.grey400 },
+            ]}
           >
-            {placeholder ? (
-              <Picker.Item label={placeholder} value="" color={Colors.grey400} />
-            ) : null}
-            {options.map((opt) => (
-              <Picker.Item
-                key={opt.value}
-                label={opt.label}
-                value={opt.value}
-                color={textColor}
-              />
-            ))}
-          </Picker>
-
-          {/* Icona per stato default (grigia) o active (blu) */}
-          {(computedStatus === 'default' || computedStatus === 'active') && (
-            <View style={styles.iconWrapper}>
-              {statusIconCustom
-                ? React.cloneElement(statusIconCustom, {
-                    width: 16,
-                    height: 16,
-                    fill:
-                      computedStatus === 'active'
-                        ? Colors.darkBlue
-                        : Colors.grey400,
-                  })
-                : null}
-            </View>
-          )}
-
-          {/* Icona errore */}
-          {computedStatus === 'error' && (
-            <View style={styles.iconWrapper}>
-              <AlertIcon width={16} height={16} fill={Colors.error} />
-            </View>
-          )}
+            {value || placeholder}
+          </Text>
+          <Text style={styles.cmText}>CM</Text>
         </View>
       </TouchableWithoutFeedback>
 
-      <View style={styles.errorWrapper}>
-        {computedStatus === 'error' && errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        ) : (
-          <Text style={styles.errorText}> </Text>
-        )}
-      </View>
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.modalWrapper}>
+          {/* Evidenziatore centrale */}
+          <View style={styles.highlightOverlay} pointerEvents="none" />
+
+          <FlatList
+            ref={flatListRef}
+            data={numbers}
+            keyExtractor={item => item.toString()}
+            showsVerticalScrollIndicator={false}
+            snapToInterval={ITEM_HEIGHT}
+            decelerationRate="fast"
+            contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * 2 }}
+            getItemLayout={(_, index) => ({
+              length: ITEM_HEIGHT,
+              offset: ITEM_HEIGHT * index,
+              index,
+            })}
+            onMomentumScrollEnd={handleScrollEnd}
+            renderItem={({ item, index }) => {
+              const isSelected = index === tempIndex;
+              return (
+                <TouchableWithoutFeedback onPress={() => handleSelect(index)}>
+                  <View style={styles.modalItem}>
+                    <Text
+                      style={[
+                        styles.modalItemText,
+                        isSelected && styles.selectedItemText,
+                      ]}
+                    >
+                      {item}
+                    </Text>
+                    <Text style={styles.cmOverlayText}>CM</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              );
+            }}
+          />
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -151,9 +161,9 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 16,
     paddingHorizontal: Spacing.xs,
-    paddingVertical: 0,
+    paddingVertical: 0, // esplicito
     position: 'relative',
-    top: 9,
+    top: 9, // verrà applicato visto che c'è position relative
     textTransform: 'uppercase',
     backgroundColor: Colors.white,
     ...Typography.googleSansCode.xsRegular,
@@ -161,29 +171,50 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
     borderWidth: Borders.widths.thin,
     borderRadius: Borders.radius.regular,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.m,
+    backgroundColor: Colors.white,
   },
-  input: {
-    flex: 1,
-    borderWidth: 0,
-    backgroundColor: 'transparent',
-    ...Typography.manrope.smRegular,
+  input: { flex: 1, ...Typography.manrope.smRegular },
+  cmText: {
+    ...Typography.googleSansCode.xsMedium,
+    fontSize: 10,
   },
-  iconWrapper: {
-    marginLeft: Spacing.sm,
-    alignItems: 'center',
+  modalWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    width: width,
+    maxHeight: height * 0.35,
+    backgroundColor: Colors.white,
+    borderWidth: Borders.widths.thin,
+    borderColor: Colors.grey200,
+    borderTopLeftRadius: Borders.radius.large,
+    borderTopRightRadius: Borders.radius.large,
+  },
+  highlightOverlay: {
+    position: 'absolute',
+    top: ITEM_HEIGHT * 2,
+    left: 0,
+    width: '100%',
+    height: ITEM_HEIGHT,
+    borderWidth: 2,
+    borderColor: Colors.grey200,
+    backgroundColor: Colors.grey100,
+    borderRadius: Borders.radius.regular,
+  },
+  modalItem: {
+    height: ITEM_HEIGHT,
     justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
   },
-  errorText: {
-    color: Colors.error,
-    ...Typography.manrope.xsMedium,
-  },
-  errorWrapper: {
-    minHeight: 18,
-    marginLeft: Spacing.md,
+  modalItemText: { ...Typography.manrope.mdRegular, color: Colors.darkBlue },
+  selectedItemText: { fontWeight: 'bold', fontSize: 18 },
+  cmOverlayText: {
+    marginLeft: 8,
+    ...Typography.googleSansCode.xsRegular,
+    color: Colors.darkBlue,
   },
 });

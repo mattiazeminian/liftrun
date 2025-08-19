@@ -17,13 +17,10 @@ import Typography from '../variables/typography';
 
 import ArrowLeft from '../icons/arrowleft';
 
-import { auth } from '../config/firebaseConfig';
-
 const window = Dimensions.get('window');
 
 export default function IntroOnboarding() {
   const navigation = useNavigation();
-  const currentUser = auth.currentUser;
 
   return (
     <View style={styles.container}>
@@ -58,11 +55,7 @@ export default function IntroOnboarding() {
             <Button
               variant="primary"
               style={styles.button}
-              onPress={() =>
-                navigation.navigate('Onboarding_FitnessGoal', {
-                  uid: currentUser.uid,
-                })
-              }
+              onPress={() => navigation.navigate('Onboarding_FitnessGoal')}
             >
               GET STARTED
             </Button>

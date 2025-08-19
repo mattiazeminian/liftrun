@@ -10,11 +10,6 @@ import Colors from '../variables/colors';
 import Button from '../components/button';
 import TextInput from '../components/textinput';
 
-// Import Firebase
-import { auth, db } from '../config/firebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-
 const window = Dimensions.get('window');
 
 export default function SignUpScreen() {
@@ -27,18 +22,12 @@ export default function SignUpScreen() {
   const [passwordError, setPasswordError] = useState('');
 
   // Handler validazione email
-  function isEmailValid(email) {
-    // Controlla presenza di una @ e qualcosa dopo (es. dominio)
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
   function validateEmail(text) {
-    const lowerText = text.toLowerCase();
-    setEmail(lowerText);
-
-    if (lowerText.length === 0) {
+    setEmail(text);
+    if (text.length === 0) {
       setEmailError('');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lowerText)) {
-      setEmailError('Please enter a valid email address');
+    } else if (!text.includes('@')) {
+      setEmailError('Email is not valid!');
     } else {
       setEmailError('');
     }
@@ -66,32 +55,6 @@ export default function SignUpScreen() {
   }
 
   const isButtonDisabled = !(isEmailValid(email) && isPasswordValid(password));
-  const [isLoading, setIsLoading] = useState(false);
-
-  async function handleSignUp() {
-    console.log('handleSignUp called');
-    setIsLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      console.log('User created:', userCredential.user.uid);
-
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
-        email: email,
-        createdAt: new Date(),
-      });
-
-      navigation.navigate('IntroOnboarding', { uid: userCredential.user.uid });
-    } catch (error) {
-      console.error('Sign up error:', error.code, error.message);
-      Alert.alert('Error signing up', error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   return (
     <KeyboardAvoidingView
@@ -142,12 +105,19 @@ export default function SignUpScreen() {
 
             <Button
               variant="primary"
-              onPress={handleSignUp}
-              disabled={isButtonDisabled || isLoading}
-              loading={isLoading}
-              style={[styles.button, { marginTop: Spacing.md }]}
+              onPress={() => {
+                alert('Primario premuto');
+                navigation.navigate('IntroOnboarding');
+              }}
+              disabled={isButtonDisabled} // disabilita se email e/o password sono validi
+              style={[
+                styles.button,
+                {
+                  marginTop: Spacing.md,
+                },
+              ]}
             >
-              SIGN UP
+              SIGN IN
             </Button>
           </View>
 

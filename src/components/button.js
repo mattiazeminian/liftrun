@@ -1,5 +1,5 @@
 // src/components/Button.js
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Button as PaperButton } from 'react-native-paper';
 import Colors from '../variables/colors';
@@ -9,10 +9,8 @@ import Borders from '../variables/borders';
 
 export default function Button({
   children,
-  onPress,
+  onClick,
   disabled,
-  loading = false,
-
   variant = 'primary', // primary, secondary, tertiary
   style,
   ...rest
@@ -59,9 +57,8 @@ export default function Button({
   return (
     <PaperButton
       mode={mode}
-      onPress={onPress}
+      onPress={onClick}
       disabled={disabled}
-      loading={loading}
       contentStyle={contentStylesByVariant[variant]}
       style={[
         styles.button,

@@ -1,0 +1,17 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/GoogleSansCode.ttf",
+      "sha1": "2132424442db7f1f1f6624aa811efb87c61c41d8"
+    },
+    {
+      "path": "src/assets/fonts/Manrope.ttf",
+      "sha1": "b190c931d200c0e72563c94a5f7568ca69bdb8b6"
+    },
+    {
+      "path": "src/assets/fonts/RobotoSerif.ttf",
+      "sha1": "b019648f3eefaa13b32e53a0914f62fffadb4f18"
+    }
+  ]
+}

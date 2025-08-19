@@ -13,6 +13,7 @@ import Navigation from '../components/navigation';
 import NavigationProgress from '../components/navigationprogress';
 import CustomSlider from '../components/slider';
 import { KeyboardAvoidingView, Platform } from 'react-native';
+import PickerInput from '../components/picker';
 
 import Colors from '../variables/colors';
 
@@ -22,6 +23,8 @@ import SettingsIcon from '../icons/settingsicon';
 export default function DevScreen() {
   // Stato di esempio per progress (da 0 a 1)
   const [progress, setProgress] = React.useState(0.2);
+
+  const [selectedHeight, setSelectedHeight] = useState('');
 
   // Stati dei text input
   const [username, setUsername] = useState('');
@@ -110,6 +113,17 @@ export default function DevScreen() {
           <SmallButton variant="danger" onPress={() => alert('Small Danger')}>
             REMOVE
           </SmallButton>
+
+          {/* PICKER INPUT */}
+          <Text style={styles.sectionTitle}>Picker Input</Text>
+          <PickerInput
+            label="Altezza"
+            placeholder="Seleziona altezza"
+            value={selectedHeight}
+            onValueChange={setSelectedHeight}
+            min={110}
+            max={220}
+          />
 
           {/* DROPDOWN */}
           <Text style={styles.sectionTitle}>Dropdown Input</Text>

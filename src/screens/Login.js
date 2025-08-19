@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Dimensions, Image, Alert } from 'react-native';
+import { StyleSheet, View, Text, Dimensions, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 
@@ -9,42 +9,31 @@ import Colors from '../variables/colors';
 
 import Button from '../components/button';
 import TextInput from '../components/textinput';
-import PickerInput from '../components/picker';
-
-import { auth } from '../config/firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const window = Dimensions.get('window');
 
 export default function Login() {
   const navigation = useNavigation();
-  const [age, setAge] = useState(''); // <-- qui dichiari age
 
-  const [showSignUpButton, setShowSignUpButton] = useState(false);
-
+  // Stati
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  function isEmailValid(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
+  // Handler validazione email
   function validateEmail(text) {
-    const lowerText = text.toLowerCase();
-    setEmail(lowerText);
-
-    if (lowerText.length === 0) {
+    setEmail(text);
+    if (text.length === 0) {
       setEmailError('');
-    } else if (!isEmailValid(lowerText)) {
-      setEmailError('Please enter a valid email address');
+    } else if (!text.includes('@')) {
+      setEmailError('Email is not valid!');
     } else {
       setEmailError('');
     }
   }
 
+  // Handler validazione password
   function validatePassword(text) {
     setPassword(text);
     if (text.length === 0) {
@@ -56,54 +45,33 @@ export default function Login() {
     }
   }
 
+  // Funzioni pure di validità (NON fanno setState)
+  function isEmailValid(email) {
+    return email.length > 0 && email.includes('@');
+  }
+
   function isPasswordValid(password) {
     return password.length >= 8;
   }
 
   const isButtonDisabled = !(isEmailValid(email) && isPasswordValid(password));
 
-  async function handleLogin() {
-    setIsLoading(true);
-    setShowSignUpButton(false); // resetto il pulsante
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigation.navigate('IntroOnboarding');
-    } catch (error) {
-      console.log('Login error code:', error.code);
-      if (error.code === 'auth/user-not-found') {
-        navigation.navigate('SignUp', { prefilledEmail: email });
-      } else if (
-        error.code === 'auth/wrong-password' ||
-        error.code === 'auth/invalid-credential'
-      ) {
-        // Mostro il pulsante sign up invece di alert
-        setShowSignUpButton(true);
-        Alert.alert(
-          'Login Error',
-          'Please check your credentials or create a new account',
-        );
-      } else {
-        Alert.alert('Errore Login', error.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={10}
+      keyboardVerticalOffset={10} // o altro valore per margine sotto tastiera
     >
       <View style={styles.container}>
         <View style={styles.content}>
+          {/* Container logo + hero */}
           <View style={styles.headerContainer}>
             <Image
               source={require('../assets/images/logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
+
             <View style={styles.hero}>
               <Text style={styles.heroTitle}>
                 Let’s get {'\n'}
@@ -113,6 +81,7 @@ export default function Login() {
             </View>
           </View>
 
+          {/* InputText and Button */}
           <View style={styles.inputContainer}>
             <TextInput
               label="Email"
@@ -128,43 +97,29 @@ export default function Login() {
               placeholder="What's your password?"
               value={password}
               onChangeText={validatePassword}
-              secureTextEntry
+              secureTextEntry={true}
               keyboardType="default"
               autoCapitalize="none"
               autoCorrect={false}
               errorMessage={passwordError}
             />
-            <PickerInput
-              label="Età"
-              value={age}
-              onChangeText={setAge}
-              placeholder="Seleziona età"
-              options={[...Array(100).keys()].map(n => ({
-                label: String(n),
-                value: String(n),
-              }))}
-            />
 
             <Button
               variant="primary"
-              onPress={handleLogin}
-              disabled={isButtonDisabled || isLoading}
-              loading={isLoading}
-              style={[styles.button, { marginTop: Spacing.md }]}
+              onPress={() => {
+                alert('Primario premuto');
+                navigation.navigate('IntroOnboarding');
+              }}
+              disabled={isButtonDisabled} // disabilita se email e/o password sono validi
+              style={[
+                styles.button,
+                {
+                  marginTop: Spacing.md,
+                },
+              ]}
             >
               SIGN IN
             </Button>
-            {showSignUpButton && (
-              <Button
-                variant="secondary"
-                onPress={() =>
-                  navigation.navigate('SignUp', { prefilledEmail: email })
-                }
-                style={[styles.button, { marginTop: Spacing.sm }]}
-              >
-                SIGN UP
-              </Button>
-            )}
           </View>
 
           <Text style={styles.disclaimer}>
