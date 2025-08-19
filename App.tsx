@@ -104,7 +104,7 @@ const MyTheme: Theme = {
 
 export default function App(): React.JSX.Element {
   const [currentRoute, setCurrentRoute] =
-    useState<keyof RootStackParamList>('DevScreen');
+    useState<keyof RootStackParamList>('Onboarding_PersonalData');
 
   const calculateProgress = (route: keyof RootStackParamList): number => {
     switch (route) {
@@ -151,7 +151,7 @@ export default function App(): React.JSX.Element {
           />
         )}
         <Stack.Navigator
-          initialRouteName="Onboarding_FitnessGoal"
+          initialRouteName="Onboarding_PersonalData"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,

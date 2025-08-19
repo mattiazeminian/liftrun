@@ -3,9 +3,8 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
-  Platform,
   Dimensions,
+  StyleSheet,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 
@@ -34,34 +33,33 @@ export default function CustomSlider({
     setInputValue(String(value));
   }, [value]);
 
-  const handleInputChange = text => {
-    let sanitized = text.replace(/[^0-9.]/g, '');
-    let numeric = parseFloat(sanitized);
-    if (isNaN(numeric)) {
-      setInputValue('');
-      return;
+  // Consenti solo input numerico valido (intero o decimale se step<1)
+  const handleInputChange = (text) => {
+    const regex = step < 1 ? /^[0-9]*\.?[0-9]*$/ : /^[0-9]*$/;
+    if (regex.test(text)) {
+      setInputValue(text);
     }
-    if (numeric < min) numeric = min;
-    if (numeric > max) numeric = max;
-    setInputValue(String(numeric));
-    onValueChange(numeric);
   };
 
   const handleInputEndEditing = () => {
     let numeric = parseFloat(inputValue);
+
     if (isNaN(numeric)) {
-      setInputValue(String(value)); // resetto valore corretto
+      setInputValue(String(value));
       return;
     }
+
     numeric = Math.round(numeric / step) * step;
     if (numeric < min) numeric = min;
     if (numeric > max) numeric = max;
+
     setInputValue(String(numeric));
-    if (numeric !== value) onValueChange(numeric);
+
+    if (numeric !== value) {
+      onValueChange(numeric);
+    }
   };
 
-  // Calcolo larghezza slider dinamica: tutta la larghezza - padding orizzontale container
-  // container ha padding orizzontale pari a Spacing.md (assunto)
   const horizontalPadding = Spacing.md * 2;
   const sliderWidth = SCREEN_WIDTH - horizontalPadding;
 
@@ -71,18 +69,18 @@ export default function CustomSlider({
         <Text style={styles.label}>{label.toUpperCase()}</Text>
         <TextInput
           style={[styles.input, inputStyle]}
-          keyboardType="number-pad"
+          keyboardType={Platform.OS === 'ios' ? 'decimal-pad' : 'numeric'}
           value={inputValue}
           onChangeText={handleInputChange}
           onEndEditing={handleInputEndEditing}
           returnKeyType="done"
           underlineColorAndroid="transparent"
-          editable={true} // assicurati sia editabile
-          autoCorrect={false} // disabilita correzione
-          textContentType="none" // (iOS) disabilita autofill
-          keyboardAppearance="dark" // opzionale, se vuoi tastiera scura su iOS
-          autoComplete="off" // disabilita completamento automatico (Android/iOS)
-          spellCheck={false} // disabilita controllo ortografico
+          editable={true}
+          autoCorrect={false}
+          textContentType="none"
+          keyboardAppearance="dark"
+          autoComplete="off"
+          spellCheck={false}
           selectionColor={Colors.darkBlue}
         />
       </View>
@@ -97,9 +95,6 @@ export default function CustomSlider({
         maximumTrackTintColor={Colors.grey200}
         thumbTintColor={Colors.darkBlue}
         onValueChange={onValueChange}
-        // thumbStyle e trackStyle NON sono props ufficiali di react-native-community/slider
-        // Per personalizzare il thumb e track occorre styling tramite style e uso componenti custom oppure
-        // su iOS puoi solo personalizzare colore con thumbTintColor.
       />
     </View>
   );
