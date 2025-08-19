@@ -151,7 +151,7 @@ export default function App(): React.JSX.Element {
           />
         )}
         <Stack.Navigator
-          initialRouteName="DevScreen"
+          initialRouteName="Intro"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,

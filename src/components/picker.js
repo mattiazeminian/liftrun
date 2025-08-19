@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   Modal,
   FlatList,
@@ -19,6 +20,7 @@ const { height, width } = Dimensions.get('window');
 
 export default function PickerInput({
   value,
+  unitTitle = 'This is the title',
   onValueChange,
   placeholder = '',
   label = '',
@@ -26,56 +28,66 @@ export default function PickerInput({
   style,
   min = 110,
   max = 210,
+  unitText = 'KG',
 }) {
   const numbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
-  const initialIndex = numbers.indexOf(parseInt(value, 10));
+  const defaultIndex = Math.floor(numbers.length / 2);
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [tempIndex, setTempIndex] = useState(
-    initialIndex !== -1 ? initialIndex : 60,
+  const [selectedIndex, setSelectedIndex] = useState(
+    value ? numbers.indexOf(parseInt(value, 10)) : defaultIndex,
   );
+
   const flatListRef = useRef(null);
 
-  // Scroll al numero corretto all’apertura
   useEffect(() => {
     if (modalVisible && flatListRef.current) {
-      flatListRef.current.scrollToIndex({
-        index: tempIndex,
+      const index = value ? numbers.indexOf(parseInt(value, 10)) : defaultIndex;
+      const validIndex = index !== -1 ? index : defaultIndex;
+      setSelectedIndex(validIndex);
+      flatListRef.current.scrollToOffset({
+        offset: validIndex * ITEM_HEIGHT,
         animated: false,
-        viewPosition: 0.5,
       });
     }
   }, [modalVisible]);
 
-  const handleContainerPress = () => {
+  const handleOpen = () => {
     if (!disabled) setModalVisible(true);
   };
 
-  const handleSelect = index => {
-    setTempIndex(index);
+  const handleClose = () => {
+    onValueChange(numbers[selectedIndex].toString());
+    setModalVisible(false);
+  };
+
+  const handleSelectIndex = (index) => {
+    setSelectedIndex(index);
     onValueChange(numbers[index].toString());
     setModalVisible(false);
   };
 
-  const handleScrollEnd = event => {
+  // Aggiornamento fluido durante lo scroll
+  const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
-    const clampedIndex = Math.max(0, Math.min(numbers.length - 1, index));
-    setTempIndex(clampedIndex);
-    onValueChange(numbers[clampedIndex].toString());
+    setSelectedIndex(Math.max(0, Math.min(numbers.length - 1, index)));
   };
 
-  // Colore label e bordo dinamico
+  // Fine scroll, assicura selezione esatta
+  const handleMomentumScrollEnd = (e) => {
+    const offsetY = e.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    setSelectedIndex(Math.max(0, Math.min(numbers.length - 1, index)));
+  };
+
   const borderColor = disabled
     ? Colors.grey200
     : value
     ? Colors.darkBlue
     : Colors.grey200;
 
-  const labelColor = disabled
-    ? Colors.grey200
-    : value
-    ? Colors.darkBlue
-    : Colors.darkBlue;
+  const labelColor = disabled ? Colors.grey200 : Colors.darkBlue;
 
   return (
     <View style={[styles.wrapper, style]}>
@@ -83,7 +95,7 @@ export default function PickerInput({
         <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
       ) : null}
 
-      <TouchableWithoutFeedback onPress={handleContainerPress}>
+      <TouchableWithoutFeedback onPress={handleOpen}>
         <View
           style={[
             styles.inputContainer,
@@ -99,48 +111,64 @@ export default function PickerInput({
           >
             {value || placeholder}
           </Text>
-          <Text style={styles.cmText}>CM</Text>
+          <Text style={styles.cmText}>{unitText}</Text>
         </View>
       </TouchableWithoutFeedback>
 
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalWrapper}>
-          {/* Evidenziatore centrale */}
-          <View style={styles.highlightOverlay} pointerEvents="none" />
+      <Modal visible={modalVisible} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback onPress={handleClose}>
+            <View style={styles.overlayTouchable} />
+          </TouchableWithoutFeedback>
 
-          <FlatList
-            ref={flatListRef}
-            data={numbers}
-            keyExtractor={item => item.toString()}
-            showsVerticalScrollIndicator={false}
-            snapToInterval={ITEM_HEIGHT}
-            decelerationRate="fast"
-            contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * 2 }}
-            getItemLayout={(_, index) => ({
-              length: ITEM_HEIGHT,
-              offset: ITEM_HEIGHT * index,
-              index,
-            })}
-            onMomentumScrollEnd={handleScrollEnd}
-            renderItem={({ item, index }) => {
-              const isSelected = index === tempIndex;
-              return (
-                <TouchableWithoutFeedback onPress={() => handleSelect(index)}>
-                  <View style={styles.modalItem}>
-                    <Text
-                      style={[
-                        styles.modalItemText,
-                        isSelected && styles.selectedItemText,
-                      ]}
+          <View style={[styles.modalWrapper, { width }]}>
+            <View style={styles.handleWrapper}>
+              <View style={styles.handleBar} />
+            </View>
+
+            <Text style={styles.title}>{unitTitle}</Text>
+
+            <View style={styles.scrollWrapper}>
+              <FlatList
+                keyboardShouldPersistTaps="handled"
+                ref={flatListRef}
+                data={numbers}
+                keyExtractor={(item) => item.toString()}
+                showsVerticalScrollIndicator={false}
+                snapToInterval={ITEM_HEIGHT}
+                decelerationRate="fast"
+                contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * 2 }}
+                getItemLayout={(_, index) => ({
+                  length: ITEM_HEIGHT,
+                  offset: ITEM_HEIGHT * index,
+                  index,
+                })}
+                onScroll={handleScroll}
+                onMomentumScrollEnd={handleMomentumScrollEnd}
+                scrollEventThrottle={16}
+                renderItem={({ item, index }) => {
+                  const isSelected = index === selectedIndex;
+                  return (
+                    <TouchableOpacity
+                      style={isSelected ? styles.selectedItemContainer : styles.modalItem}
+                      activeOpacity={0.7}
+                      onPress={() => handleSelectIndex(index)}
                     >
-                      {item}
-                    </Text>
-                    <Text style={styles.cmOverlayText}>CM</Text>
-                  </View>
-                </TouchableWithoutFeedback>
-              );
-            }}
-          />
+                      <Text
+                        style={[
+                          styles.modalItemText,
+                          isSelected && styles.selectedItemText,
+                        ]}
+                      >
+                        {item}{' '}
+                        <Text style={styles.cmTextInline}>{unitText}</Text>
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+          </View>
         </View>
       </Modal>
     </View>
@@ -150,8 +178,6 @@ export default function PickerInput({
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    display: 'flex',
-    height: 'auto',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -161,9 +187,8 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 16,
     paddingHorizontal: Spacing.xs,
-    paddingVertical: 0, // esplicito
     position: 'relative',
-    top: 9, // verrà applicato visto che c'è position relative
+    top: 9,
     textTransform: 'uppercase',
     backgroundColor: Colors.white,
     ...Typography.googleSansCode.xsRegular,
@@ -177,44 +202,90 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
     backgroundColor: Colors.white,
   },
-  input: { flex: 1, ...Typography.manrope.smRegular },
+  input: {
+    flex: 1,
+    ...Typography.manrope.smRegular,
+  },
   cmText: {
     ...Typography.googleSansCode.xsMedium,
     fontSize: 10,
   },
-  modalWrapper: {
-    position: 'absolute',
-    bottom: 0,
-    width: width,
-    maxHeight: height * 0.35,
-    backgroundColor: Colors.white,
-    borderWidth: Borders.widths.thin,
-    borderColor: Colors.grey200,
-    borderTopLeftRadius: Borders.radius.large,
-    borderTopRightRadius: Borders.radius.large,
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
   },
-  highlightOverlay: {
-    position: 'absolute',
-    top: ITEM_HEIGHT * 2,
-    left: 0,
+  overlayTouchable: {
+    flex: 1,
     width: '100%',
-    height: ITEM_HEIGHT,
-    borderWidth: 2,
-    borderColor: Colors.grey200,
-    backgroundColor: Colors.grey100,
-    borderRadius: Borders.radius.regular,
+  },
+  modalWrapper: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: Borders.radius.xl,
+    borderTopRightRadius: Borders.radius.xl,
+    paddingTop: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.xxl,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: Spacing.md,
+    ...Shadows.lg,
+    maxHeight: height * 0.5,
+  },
+  handleWrapper: {
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  handleBar: {
+    width: 32,
+    height: 4,
+    borderRadius: Borders.radius.round,
+    backgroundColor: Colors.darkBlue,
+  },
+  title: {
+    width: '100%',
+    textAlign: 'left',
+    ...Typography.manrope.lg,
+    color: Colors.darkBlue,
+    marginBottom: 8,
+  },
+  scrollWrapper: {
+    height: ITEM_HEIGHT * 5,
+    width: '100%',
+    alignItems: 'center',
+    position: 'relative',
   },
   modalItem: {
     height: ITEM_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
+    paddingVertical: 6,
   },
-  modalItemText: { ...Typography.manrope.mdRegular, color: Colors.darkBlue },
-  selectedItemText: { fontWeight: 'bold', fontSize: 18 },
-  cmOverlayText: {
-    marginLeft: 8,
+  selectedItemContainer: {
+    backgroundColor: Colors.grey100,
+    borderRadius: Borders.radius.large,
+    paddingHorizontal: 92,
+    paddingVertical: Spacing.sm,
+    marginVertical: 2,
+  },
+  modalItemText: {
+    ...Typography.manrope.mdRegular,
+    color: Colors.grey600,
+    fontSize: 20,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  selectedItemText: {
+    fontWeight: '700',
+    color: Colors.darkBlue,
+    fontSize: 28,
+    lineHeight: 32,
+  },
+  cmTextInline: {
     ...Typography.googleSansCode.xsRegular,
     color: Colors.darkBlue,
+    fontSize: 14,
   },
 });
