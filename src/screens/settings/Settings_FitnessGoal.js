@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   hero: {
-    marginBottom: Spacing.md,
+    paddingBottom: Spacing.xxl,
   },
   heroTitle: {
     ...Typography.robotoSerif.mdRegular,

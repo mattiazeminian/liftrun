@@ -3,31 +3,44 @@ import { View, StyleSheet, Image, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import Navigation from '../../components/navigation';
-import CustomRadio from '../../components/radio';
+import CustomCheckbox from '../../components/checkbox';
 import Button from '../../components/button';
 
 import Colors from '../../variables/colors';
 import Spacing from '../../variables/spacing';
 import Typography from '../../variables/typography';
 
+import EquipmentIcon from '../../icons/equipmenticon';
 import ArrowLeftIcon from '../../icons/arrowleft';
 
-export default function Settings_TypeofTraining() {
+export default function Settings_Equipment() {
   const navigation = useNavigation();
 
-  const [selectedRadio, setSelectedRadio] = useState(1); // Opzione selezionata iniziale
+  const initialCheckboxes = [true, false, false, false];
+  const [checkboxes, setCheckboxes] = useState(initialCheckboxes);
   const [modified, setModified] = useState(false);
 
-  const options = [
-    'Gym workouts',
-    'Running',
-    'Both (mixed)',
-    'Home / Bodyweight only',
-  ];
+  const toggleCheckbox = (index) => {
+    setCheckboxes((prev) => {
+      const updated = [...prev];
+      const selectedCount = prev.filter(Boolean).length;
+      if (updated[index]) {
+        if (selectedCount === 1) {
+          // Non deselezionare l’unica opzione selezionata
+          return prev;
+        }
+        updated[index] = false;
+      } else {
+        updated[index] = true;
+      }
+      return updated;
+    });
+  };
 
   useEffect(() => {
-    setModified(selectedRadio !== 1); // abilita se cambiamo la selezione da default
-  }, [selectedRadio]);
+    const isModified = checkboxes.some((val, idx) => val !== initialCheckboxes[idx]);
+    setModified(isModified);
+  }, [checkboxes]);
 
   return (
     <View style={styles.container}>
@@ -44,17 +57,22 @@ export default function Settings_TypeofTraining() {
       />
 
       <View style={styles.content}>
-        <View style={styles.radioContainer}>
+        <View style={styles.checkboxContainer}>
           <View style={styles.hero}>
-            <Text style={styles.heroTitle}>Type of training</Text>
+            <Text style={styles.heroTitle}>Equipment</Text>
           </View>
-          {options.map((label, index) => (
-            <CustomRadio
+          {[
+            'Gym',
+            'Home equipment (e.g., dumbbells, bench)',
+            'Bodyweight only',
+            'Outdoors (e.g., for running)',
+          ].map((label, index) => (
+            <CustomCheckbox
               key={index}
               label={label}
-              selected={selectedRadio === index}
-              onChange={() => setSelectedRadio(index)}
-              style={styles.radio}
+              checked={checkboxes[index]}
+              onChange={() => toggleCheckbox(index)}
+              style={styles.checkbox}
             />
           ))}
         </View>
@@ -65,7 +83,10 @@ export default function Settings_TypeofTraining() {
             style={styles.button}
             disabled={!modified}
             onPress={() => {
-              alert(`Selected goal: ${options[selectedRadio]}`);
+              const selectedIndices = checkboxes
+                .map((val, idx) => (val ? idx : -1))
+                .filter(idx => idx !== -1);
+              alert(`Selected equipment indices: ${selectedIndices.join(', ')}`);
             }}
           >
             SAVE CHANGES
@@ -91,7 +112,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingBottom: Spacing.xxl,
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   hero: {
     paddingBottom: Spacing.xxl,
@@ -100,13 +121,13 @@ const styles = StyleSheet.create({
     ...Typography.robotoSerif.mdRegular,
     color: Colors.darkBlue,
   },
-  radioContainer: {
-    gap: Spacing.md,
+  checkboxContainer: {
+    gap: Spacing.m,
     width: '100%',
     flexDirection: 'column',
   },
-  radio: {
-    // personalizzazioni stile radio se necessarie
+  checkbox: {
+    // eventuali personalizzazioni checkbox
   },
   buttonsContainer: {
     width: '100%',

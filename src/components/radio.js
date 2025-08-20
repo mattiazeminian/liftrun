@@ -96,5 +96,6 @@ const styles = StyleSheet.create({
     color: Colors.darkBlue,
     marginLeft: Spacing.sm,
     ...Typography.manrope.smRegular,
+    height: 24,
   },
 });

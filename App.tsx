@@ -30,6 +30,8 @@ import PersonalDataSettings from './src/screens/settings/Settings_PersonalData';
 import FitnessLevelSettings from './src/screens/settings/Settings_FitnessLevel';
 import FitnessGoalSettings from './src/screens/settings/Settings_FitnessGoal';
 import TypeofTrainingSettings from './src/screens/settings/Settings_TypeofTraining';
+import EquipmentSettings from './src/screens/settings/Settings_Equipment';
+
 
 import DevScreen from './src/screens/DevScreen';
 
@@ -58,6 +60,7 @@ type RootStackParamList = {
   FitnessLevelSettings: undefined;
   FitnessGoalSettings: undefined;
   TypeofTrainingSettings: undefined;
+  EquipmentSettings: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -115,7 +118,7 @@ const MyTheme: Theme = {
 
 export default function App(): React.JSX.Element {
   const [currentRoute, setCurrentRoute] = useState<keyof RootStackParamList>(
-    'TypeofTrainingSettings',
+    'Intro',
   );
 
   const calculateProgress = (route: keyof RootStackParamList): number => {
@@ -163,7 +166,7 @@ export default function App(): React.JSX.Element {
           />
         )}
         <Stack.Navigator
-          initialRouteName="TypeofTrainingSettings"
+          initialRouteName="Settings"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,
@@ -251,6 +254,11 @@ export default function App(): React.JSX.Element {
           <Stack.Screen
             name="TypeofTrainingSettings"
             component={TypeofTrainingSettings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="EquipmentSettings"
+            component={EquipmentSettings}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

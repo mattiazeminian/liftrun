@@ -60,7 +60,11 @@ export default function Settings_FitnessLevel() {
             disabled={!modified} // abilitato solo se cambia selezione
             onPress={() => {
               // Puoi personalizzare azione su salva qui
-              alert(`Selected level: ${['Beginner', 'Intermediate', 'Advanced'][selectedRadio]}`);
+              alert(
+                `Selected level: ${
+                  ['Beginner', 'Intermediate', 'Advanced'][selectedRadio]
+                }`,
+              );
             }}
           >
             SAVE CHANGES
@@ -89,7 +93,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   hero: {
-    marginBottom: Spacing.md,
+    paddingBottom: Spacing.xxl,
   },
   heroTitle: {
     ...Typography.robotoSerif.mdRegular,

@@ -41,9 +41,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.grey300,
     borderRadius: Borders.radius.regular,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.m,
+    paddingVertical: Spacing.md,
     ...Shadows.sm,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   iconWrapper: {
     width: 16,

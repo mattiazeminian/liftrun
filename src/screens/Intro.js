@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 384, //Spacing.xxl,
+    gap: 384, 
   },
   logo: {
     width: 210,

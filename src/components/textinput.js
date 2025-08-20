@@ -171,14 +171,13 @@ const styles = StyleSheet.create({
     borderWidth: Borders.widths.thin,
     borderRadius: Borders.radius.regular,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.m,
+    paddingVertical: Spacing.md,
   },
   input: {
     flex: 1,
     borderWidth: 0,
     backgroundColor: 'transparent',
     ...Typography.manrope.smRegular,
-    height: 24,
   },
   iconWrapper: {
     marginLeft: Spacing.sm,

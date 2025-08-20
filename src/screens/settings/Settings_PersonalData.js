@@ -211,13 +211,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    paddingTop: Spacing.xl,
     paddingHorizontal: Spacing.md,
     paddingBottom: Spacing.xxl,
     justifyContent: 'space-between',
   },
   hero: {
-    marginBottom: Spacing.md,
+    paddingBottom: Spacing.xxl,
   },
   heroTitle: {
     ...Typography.robotoSerif.mdRegular,
@@ -225,7 +224,6 @@ const styles = StyleSheet.create({
   },
   inputsContainer: {
     flexDirection: 'column',
-    alignItems: 'flex-start',
     width: '100%',
   },
   input: {

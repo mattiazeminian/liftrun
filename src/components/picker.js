@@ -8,7 +8,10 @@ import {
   Modal,
   FlatList,
   Dimensions,
+  Animated,
 } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
@@ -17,6 +20,12 @@ import Shadows from '../variables/shadows';
 
 const ITEM_HEIGHT = 50;
 const { height, width } = Dimensions.get('window');
+const MODAL_HEIGHT = height * 0.5;
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 export default function PickerInput({
   value,
@@ -25,7 +34,7 @@ export default function PickerInput({
   placeholder = '',
   label = '',
   disabled = false,
-  errorMessage = '', // aggiunto prop per errore
+  errorMessage = '',
   style,
   min = 110,
   max = 210,
@@ -41,16 +50,20 @@ export default function PickerInput({
       : Math.floor(numbers.length / 2);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(
-    value ? numbers.indexOf(parseInt(value, 10)) : defaultIndex,
+    value ? numbers.indexOf(parseInt(value, 10)) : effectiveDefaultIndex,
   );
 
   const flatListRef = useRef(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(MODAL_HEIGHT)).current;
+  const lastHapticTimeRef = useRef(0);
 
   useEffect(() => {
     if (modalVisible && flatListRef.current) {
-      const index = value ? numbers.indexOf(parseInt(value, 10)) : defaultIndex;
-      const validIndex = index !== -1 ? index : defaultIndex;
+      const index = value ? numbers.indexOf(parseInt(value, 10)) : effectiveDefaultIndex;
+      const validIndex = index !== -1 ? index : effectiveDefaultIndex;
       setSelectedIndex(validIndex);
       flatListRef.current.scrollToOffset({
         offset: validIndex * ITEM_HEIGHT,
@@ -59,30 +72,75 @@ export default function PickerInput({
     }
   }, [modalVisible]);
 
-  const handleOpen = () => {
-    if (!disabled) setModalVisible(true);
+  const triggerHaptic = () => {
+    ReactNativeHapticFeedback.trigger('impactLight', hapticOptions);
   };
 
-  const handleClose = () => {
-    onValueChange(numbers[selectedIndex].toString());
-    setModalVisible(false);
+  const openModal = () => {
+    if (disabled || modalVisible || animating) return;
+    triggerHaptic();
+    setModalVisible(true);
+    setAnimating(true);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0.5,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setAnimating(false);
+    });
   };
 
-  const handleSelectIndex = index => {
+  const closeModal = () => {
+    if (animating) return;
+    setAnimating(true);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: MODAL_HEIGHT,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setAnimating(false);
+      setModalVisible(false);
+      onValueChange(numbers[selectedIndex].toString());
+    });
+  };
+
+  const handleOpen = () => openModal();
+
+  const handleClose = () => closeModal();
+
+  const handleSelectIndex = (index) => {
+    triggerHaptic();
     setSelectedIndex(index);
-    onValueChange(numbers[index].toString());
-    setModalVisible(false);
+    closeModal();
   };
 
-  // fluid update while scrolling
-  const handleScroll = event => {
+  const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setSelectedIndex(Math.max(0, Math.min(numbers.length - 1, index)));
+
+    const now = Date.now();
+    if (now - lastHapticTimeRef.current > 200) {
+      triggerHaptic();
+      lastHapticTimeRef.current = now;
+    }
   };
 
-  // end scroll to set exact selection
-  const handleMomentumScrollEnd = e => {
+  const handleMomentumScrollEnd = (e) => {
     const offsetY = e.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setSelectedIndex(Math.max(0, Math.min(numbers.length - 1, index)));
@@ -110,14 +168,14 @@ export default function PickerInput({
             styles.inputContainer,
             { borderColor, opacity: disabled ? 0.6 : 1 },
             Shadows.sm,
-            isError && { borderColor: Colors.error }, // bordo rosso se errore
+            isError && { borderColor: Colors.error },
           ]}
         >
           <Text
             style={[
               styles.input,
               { color: value ? Colors.darkBlue : Colors.grey400 },
-              isError && { color: Colors.error }, // testo rosso se errore
+              isError && { color: Colors.error },
             ]}
           >
             {value || placeholder}
@@ -126,7 +184,6 @@ export default function PickerInput({
         </View>
       </TouchableWithoutFeedback>
 
-      {/* Wrapper per messaggio errore come in TextInput */}
       <View style={styles.errorWrapper}>
         {isError ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
@@ -135,13 +192,17 @@ export default function PickerInput({
         )}
       </View>
 
-      <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback onPress={handleClose}>
-            <View style={styles.overlayTouchable} />
-          </TouchableWithoutFeedback>
+      <Modal visible={modalVisible} transparent animationType="none" onRequestClose={handleClose}>
+        <View style={styles.wrapperModal}>
+          <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+            <TouchableWithoutFeedback onPress={handleClose}>
+              <View style={styles.overlayTouchable} />
+            </TouchableWithoutFeedback>
+          </Animated.View>
 
-          <View style={[styles.modalWrapper, { width }]}>
+          <Animated.View
+            style={[styles.modalWrapper, { width, transform: [{ translateY: slideAnim }] }]}
+          >
             <View style={styles.handleWrapper}>
               <View style={styles.handleBar} />
             </View>
@@ -153,7 +214,7 @@ export default function PickerInput({
                 keyboardShouldPersistTaps="handled"
                 ref={flatListRef}
                 data={numbers}
-                keyExtractor={item => item.toString()}
+                keyExtractor={(item) => item.toString()}
                 showsVerticalScrollIndicator={false}
                 snapToInterval={ITEM_HEIGHT}
                 decelerationRate="fast"
@@ -170,19 +231,12 @@ export default function PickerInput({
                   const isSelected = index === selectedIndex;
                   return (
                     <TouchableOpacity
-                      style={
-                        isSelected
-                          ? styles.selectedItemContainer
-                          : styles.modalItem
-                      }
+                      style={isSelected ? styles.selectedItemContainer : styles.modalItem}
                       activeOpacity={0.7}
                       onPress={() => handleSelectIndex(index)}
                     >
                       <Text
-                        style={[
-                          styles.modalItemText,
-                          isSelected && styles.selectedItemText,
-                        ]}
+                        style={[styles.modalItemText, isSelected && styles.selectedItemText]}
                       >
                         {item}{' '}
                         <Text style={styles.cmTextInline}>{unitText}</Text>
@@ -192,7 +246,7 @@ export default function PickerInput({
                 }}
               />
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>
@@ -225,23 +279,25 @@ const styles = StyleSheet.create({
     borderWidth: Borders.widths.thin,
     borderRadius: Borders.radius.regular,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.m,
+    paddingVertical: Spacing.md,
     backgroundColor: Colors.white,
   },
   input: {
     flex: 1,
     ...Typography.manrope.smRegular,
-    lineHeight: 26,
   },
   cmText: {
     ...Typography.googleSansCode.xsMedium,
     fontSize: 10,
     lineHeight: 24,
   },
-  overlay: {
+  wrapperModal: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'black',
   },
   overlayTouchable: {
     flex: 1,
@@ -317,7 +373,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   errorWrapper: {
-    minHeight: 18, // uguale a TextInput
+    minHeight: 18,
     marginLeft: Spacing.md,
   },
   errorText: {

@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, Image } from 'react-native';
 
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
+import Typography from '../variables/typography';
 
 import Navigation from '../components/navigation';
 import SettingsItem from '../components/settingsitem';
@@ -14,7 +15,7 @@ import CalendarIcon from '../icons/calendaricon';
 import TrainIcon from '../icons/trainicon';
 import EquipmentIcon from '../icons/equipmenticon';
 import FitnessLevelIcon from '../icons/fitnesslevelicon';
-import Typography from '../variables/typography';
+import AwardIcon from '../icons/awardicon';
 
 export default function SettingsScreen({ navigation }) {
   return (
@@ -32,14 +33,15 @@ export default function SettingsScreen({ navigation }) {
         }
       />
 
-      {/* Contenuto scrollabile con bottone in fondo */}
-      <ScrollView contentContainerStyle={[styles.content, { flexGrow: 1 }]}>
+      {/* Contenuto fisso senza scroll */}
+      <View style={styles.content}>
         {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.heroTitle}>Hi [user name]!</Text>
           <Text style={styles.heroDescription}>
-            You have been working out with this plan for 172 days.
+            You started this plan on 17/05/2024
           </Text>
+          <Text style={styles.heroDescription}>That was 234 days ago</Text>
         </View>
 
         {/* Container item allineati a sinistra */}
@@ -50,9 +52,14 @@ export default function SettingsScreen({ navigation }) {
             onPress={() => navigation.navigate('PersonalDataSettings')}
           />
           <SettingsItem
+            label="Fitness goal"
+            icon={<AwardIcon />}
+            onPress={() => navigation.navigate('FitnessGoalSettings')}
+          />
+          <SettingsItem
             label="Type of training"
             icon={<TrainIcon />}
-            onPress={() => console.log('Type')}
+            onPress={() => navigation.navigate('TypeofTrainingSettings')}
           />
           <SettingsItem
             label="Schedule"
@@ -62,12 +69,12 @@ export default function SettingsScreen({ navigation }) {
           <SettingsItem
             label="Equipment"
             icon={<EquipmentIcon />}
-            onPress={() => console.log('Equipment')}
+            onPress={() => navigation.navigate('EquipmentSettings')}
           />
           <SettingsItem
             label="Fitness level"
             icon={<FitnessLevelIcon />}
-            onPress={() => console.log('FitnessLevel')}
+            onPress={() => navigation.navigate('FitnessLevelSettings')}
           />
         </View>
 
@@ -81,7 +88,7 @@ export default function SettingsScreen({ navigation }) {
             Create a new plan 🚀{' '}
           </Button>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -92,18 +99,18 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   content: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xxl, // spazio extra così il bottone respira
+    flex: 1,
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.xxl,
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   hero: {
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.md,
+    alignItems: 'flex-start',
+    gap: Spacing.m,
     width: '100%',
+    paddingBottom: Spacing.xxl,
   },
   heroTitle: {
     color: Colors.darkBlue,
@@ -111,7 +118,7 @@ const styles = StyleSheet.create({
   },
   heroDescription: {
     color: Colors.darkBlue,
-    textAlign: 'center',
+    textAlign: 'left',
     ...Typography.manrope.smRegular,
   },
   itemsContainer: {
