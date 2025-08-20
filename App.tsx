@@ -33,8 +33,6 @@ import TypeofTrainingSettings from './src/screens/settings/Settings_TypeofTraini
 import EquipmentSettings from './src/screens/settings/Settings_Equipment';
 import ScheduleSettings from './src/screens/settings/Settings_Schedule';
 
-
-
 import DevScreen from './src/screens/DevScreen';
 
 // Components
@@ -106,8 +104,8 @@ const simpleFade: StackCardStyleInterpolator = ({ current }) => ({
 const customTransitionSpec = {
   animation: 'timing' as const,
   config: {
-    duration: 150,
-    easing: Easing.inOut(Easing.ease),
+    duration: 100,
+   easing: Easing.linear,
   },
 };
 
@@ -120,9 +118,8 @@ const MyTheme: Theme = {
 };
 
 export default function App(): React.JSX.Element {
-  const [currentRoute, setCurrentRoute] = useState<keyof RootStackParamList>(
-    'Intro',
-  );
+  const [currentRoute, setCurrentRoute] =
+    useState<keyof RootStackParamList>('Intro');
 
   const calculateProgress = (route: keyof RootStackParamList): number => {
     switch (route) {
@@ -266,7 +263,7 @@ export default function App(): React.JSX.Element {
           />
           <Stack.Screen
             name="ScheduleSettings"
-            component={ScheduleSettings}
+            component={EquipmentSettings}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
