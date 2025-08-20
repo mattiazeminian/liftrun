@@ -15,13 +15,13 @@ import Borders from '../variables/borders';
 import Shadows from '../variables/shadows';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const CLOSE_DISTANCE = 100; // px di drag per trigger chiusura
+const CLOSE_DISTANCE = 100; // px drag distance to trigger close
 
 export default function BottomSheet({
   children,
   open,
   onClose,
-  title = 'Titolo bottom sheet',
+  title = 'Bottom sheet title',
   style = {},
 }) {
   const [isRendered, setIsRendered] = useState(false);
@@ -32,17 +32,20 @@ export default function BottomSheet({
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
       onPanResponderGrant: () => {
-        pan.setValue(0);
+        // Set offset for smooth dragging
+        translateY.setOffset(translateY._value);
+        translateY.setValue(0);
       },
       onPanResponderMove: (_, gestureState) => {
         if (gestureState.dy > 0) {
-          // solo trascinamenti verso il basso
+          // Only allow dragging downward
           translateY.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
+        translateY.flattenOffset();
         if (gestureState.dy > CLOSE_DISTANCE) {
-          // chiudi
+          // Close bottom sheet if dragged beyond threshold
           Animated.timing(translateY, {
             toValue: 300,
             duration: 200,
@@ -51,7 +54,7 @@ export default function BottomSheet({
             onClose && onClose();
           });
         } else {
-          // ripristina alla posizione zero
+          // Return to original position if drag is less than threshold
           Animated.timing(translateY, {
             toValue: 0,
             duration: 200,
@@ -107,27 +110,28 @@ export default function BottomSheet({
         <Animated.View style={[styles.overlay, { opacity }]} />
       </TouchableWithoutFeedback>
 
-      {/* BottomSheet */}
+      {/* BottomSheet with drag handlers */}
       <Animated.View
+        {...panResponder.panHandlers}
         style={[
           styles.bottomSheet,
           style,
           {
             transform: [{ translateY }],
             opacity,
-            width: SCREEN_WIDTH, // larghezza 100% device
+            width: SCREEN_WIDTH, // full device width
           },
         ]}
       >
-        {/* Barra superiore */}
+        {/* Handle bar */}
         <View style={styles.handleWrapper}>
           <View style={styles.handleBar} />
         </View>
 
-        {/* Titolo */}
+        {/* Title */}
         <Text style={styles.title}>{title}</Text>
 
-        {/* Contenuto passato come children */}
+        {/* Passed children content */}
         <View style={styles.childrenList}>{children}</View>
       </Animated.View>
     </>
@@ -137,10 +141,7 @@ export default function BottomSheet({
 const styles = StyleSheet.create({
   overlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     zIndex: 999,
   },
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: Spacing.md,
-    ...Shadows.lg, // Ombra dalle tue variabili
+    ...Shadows.lg,
     zIndex: 1000,
   },
   handleWrapper: {

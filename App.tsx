@@ -31,6 +31,8 @@ import FitnessLevelSettings from './src/screens/settings/Settings_FitnessLevel';
 import FitnessGoalSettings from './src/screens/settings/Settings_FitnessGoal';
 import TypeofTrainingSettings from './src/screens/settings/Settings_TypeofTraining';
 import EquipmentSettings from './src/screens/settings/Settings_Equipment';
+import ScheduleSettings from './src/screens/settings/Settings_Schedule';
+
 
 
 import DevScreen from './src/screens/DevScreen';
@@ -61,6 +63,7 @@ type RootStackParamList = {
   FitnessGoalSettings: undefined;
   TypeofTrainingSettings: undefined;
   EquipmentSettings: undefined;
+  ScheduleSettings: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -259,6 +262,11 @@ export default function App(): React.JSX.Element {
           <Stack.Screen
             name="EquipmentSettings"
             component={EquipmentSettings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ScheduleSettings"
+            component={ScheduleSettings}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

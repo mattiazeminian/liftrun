@@ -44,14 +44,14 @@ const Typography = {
     manrope: {
         xsRegular: {
         fontFamily: 'Manrope',    // famiglia font
-        fontSize: 12,             // dimensione font
-        lineHeight: 16,           // altezza linea (spaziatura verticale tra righe)
+        fontSize: 14,             // dimensione font
+        lineHeight: 18,           // altezza linea (spaziatura verticale tra righe)
         fontWeight: '400',        // peso (standard)
         },
         xsMedium: {
         fontFamily: 'Manrope',
-        fontSize: 12,
-        lineHeight: 16,
+        fontSize: 14,
+        lineHeight: 18,
         fontWeight: '500',        // peso medio
         },
         smRegular: {
