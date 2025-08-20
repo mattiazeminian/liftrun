@@ -25,6 +25,7 @@ import Onboarding_Schedule from './src/screens/onboarding/Onboarding_Schedule';
 import Onboarding_Equipment from './src/screens/onboarding/Onboarding_Equipment';
 import Onboarding_FitnessLevel from './src/screens/onboarding/Onboarding_FitnessLevel';
 import Onboarding_PersonalData from './src/screens/onboarding/Onboarding_PersonalData';
+import SettingsScreen from './src/screens/Settings';
 import DevScreen from './src/screens/DevScreen';
 
 // Components
@@ -47,6 +48,7 @@ type RootStackParamList = {
   Onboarding_Equipment: undefined;
   Onboarding_FitnessLevel: undefined;
   Onboarding_PersonalData: undefined;
+  Settings: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -104,7 +106,7 @@ const MyTheme: Theme = {
 
 export default function App(): React.JSX.Element {
   const [currentRoute, setCurrentRoute] =
-    useState<keyof RootStackParamList>('Onboarding_PersonalData');
+    useState<keyof RootStackParamList>('Intro');
 
   const calculateProgress = (route: keyof RootStackParamList): number => {
     switch (route) {
@@ -151,7 +153,7 @@ export default function App(): React.JSX.Element {
           />
         )}
         <Stack.Navigator
-          initialRouteName="Onboarding_PersonalData"
+          initialRouteName="Settings"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,
@@ -214,6 +216,11 @@ export default function App(): React.JSX.Element {
           <Stack.Screen
             name="Onboarding_PersonalData"
             component={Onboarding_PersonalData}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={SettingsScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

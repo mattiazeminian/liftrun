@@ -13,6 +13,7 @@ export default function Navigation({
   onLeftClick,
   onRightClick,
   showCenter = true,
+  centerContent = null,
   style = {},
 }) {
   return (
@@ -27,8 +28,7 @@ export default function Navigation({
       </TouchableOpacity>
 
       {/* Centro */}
-      <View style={styles.centerFrame}>{showCenter ? <LogoIcon /> : null}</View>
-
+      {showCenter ? centerContent ? centerContent : <LogoIcon /> : null}
       {/* Destra */}
       <TouchableOpacity
         onPress={onRightClick}
