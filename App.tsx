@@ -26,6 +26,7 @@ import Onboarding_Equipment from './src/screens/onboarding/Onboarding_Equipment'
 import Onboarding_FitnessLevel from './src/screens/onboarding/Onboarding_FitnessLevel';
 import Onboarding_PersonalData from './src/screens/onboarding/Onboarding_PersonalData';
 import SettingsScreen from './src/screens/Settings';
+import PersonalDataSettings from './src/screens/settings/Settings_PersonalData';
 import DevScreen from './src/screens/DevScreen';
 
 // Components
@@ -49,6 +50,7 @@ type RootStackParamList = {
   Onboarding_FitnessLevel: undefined;
   Onboarding_PersonalData: undefined;
   Settings: undefined;
+  PersonalDataSettings: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -153,7 +155,7 @@ export default function App(): React.JSX.Element {
           />
         )}
         <Stack.Navigator
-          initialRouteName="Settings"
+          initialRouteName="PersonalDataSettings"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,
@@ -221,6 +223,11 @@ export default function App(): React.JSX.Element {
           <Stack.Screen
             name="Settings"
             component={SettingsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PersonalDataSettings"
+            component={PersonalDataSettings}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

@@ -5,7 +5,7 @@ import Colors from '../variables/colors';
 export default function EquipmentIcon({
   width = 24,
   height = 24,
-  stroke = Colors.darkBlue, // puoi cambiare colore passando prop
+  stroke = Colors.darkBlue,
   strokeWidth = 1.5,
   style,
 }) {

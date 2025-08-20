@@ -14,6 +14,7 @@ import CalendarIcon from '../icons/calendaricon';
 import TrainIcon from '../icons/trainicon';
 import EquipmentIcon from '../icons/equipmenticon';
 import FitnessLevelIcon from '../icons/fitnesslevelicon';
+import Typography from '../variables/typography';
 
 export default function SettingsScreen({ navigation }) {
   return (
@@ -32,7 +33,7 @@ export default function SettingsScreen({ navigation }) {
       />
 
       {/* Contenuto scrollabile con bottone in fondo */}
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { flexGrow: 1 }]}>
         {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.heroTitle}>Hi [user name]!</Text>
@@ -46,12 +47,7 @@ export default function SettingsScreen({ navigation }) {
           label="Personal data"
           icon={<IdIcon />}
           onPress={() => console.log('Account')}
-        />
-        <SettingsItem
-          label="Fitness level"
-          icon={<FitnessLevelIcon />}
-          onPress={() => console.log('Fitness Level')}
-        />
+        />    
         <SettingsItem
           label="Type of training"
           icon={<TrainIcon />}
@@ -100,26 +96,20 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 16,
+    gap: Spacing.md,
     marginBottom: Spacing.xxl,
   },
   heroTitle: {
     color: Colors.darkBlue,
-    fontFamily: 'Roboto Serif',
-    fontSize: 24,
-    fontWeight: '400',
-    lineHeight: 32,
+    ...Typography.robotoSerif.mdRegular,
   },
   heroDescription: {
     color: Colors.darkBlue,
-    fontFamily: 'Manrope',
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 20,
     textAlign: 'center',
+    ...Typography.manrope.smRegular,
   },
   button: {
-    marginTop: Spacing.xl,
+    marginTop: Spacing.xxl,
     marginBottom: Spacing.sm, // distacco dall'ultimo bordo
   },
 });

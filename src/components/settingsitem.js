@@ -15,14 +15,18 @@ export default function SettingsItem({ label, icon, onPress }) {
       activeOpacity={0.7}
     >
       {/* Icona a sinistra */}
-      {icon && <View style={styles.icon}>{icon}</View>}
+      {icon && (
+        <View style={styles.iconWrapper}>
+          {React.cloneElement(icon, { width: 16, height: 16 })}
+        </View>
+      )}
 
       {/* Testo */}
       <Text style={styles.text}>{label}</Text>
 
       {/* Chevron a destra */}
       <View style={styles.chevron}>
-        <ChevronRight />
+        <ChevronRight width={12} height={12} />
       </View>
     </TouchableOpacity>
   );
@@ -41,8 +45,12 @@ const styles = StyleSheet.create({
     ...Shadows.sm,
     marginBottom: Spacing.lg,
   },
-  icon: {
-    marginRight: Spacing.sm,
+  iconWrapper: {
+    width: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
   },
   text: {
     flex: 1,

@@ -1,6 +1,5 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
-
 import Colors from '../variables/colors';
 
 export default function ArrowLeft({
