@@ -27,6 +27,10 @@ import Onboarding_FitnessLevel from './src/screens/onboarding/Onboarding_Fitness
 import Onboarding_PersonalData from './src/screens/onboarding/Onboarding_PersonalData';
 import SettingsScreen from './src/screens/Settings';
 import PersonalDataSettings from './src/screens/settings/Settings_PersonalData';
+import FitnessLevelSettings from './src/screens/settings/Settings_FitnessLevel';
+import FitnessGoalSettings from './src/screens/settings/Settings_FitnessGoal';
+import TypeofTrainingSettings from './src/screens/settings/Settings_TypeofTraining';
+
 import DevScreen from './src/screens/DevScreen';
 
 // Components
@@ -51,6 +55,9 @@ type RootStackParamList = {
   Onboarding_PersonalData: undefined;
   Settings: undefined;
   PersonalDataSettings: undefined;
+  FitnessLevelSettings: undefined;
+  FitnessGoalSettings: undefined;
+  TypeofTrainingSettings: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -107,8 +114,9 @@ const MyTheme: Theme = {
 };
 
 export default function App(): React.JSX.Element {
-  const [currentRoute, setCurrentRoute] =
-    useState<keyof RootStackParamList>('Intro');
+  const [currentRoute, setCurrentRoute] = useState<keyof RootStackParamList>(
+    'TypeofTrainingSettings',
+  );
 
   const calculateProgress = (route: keyof RootStackParamList): number => {
     switch (route) {
@@ -155,7 +163,7 @@ export default function App(): React.JSX.Element {
           />
         )}
         <Stack.Navigator
-          initialRouteName="PersonalDataSettings"
+          initialRouteName="TypeofTrainingSettings"
           screenOptions={{
             gestureEnabled: true,
             cardStyleInterpolator: simpleFade,
@@ -228,6 +236,21 @@ export default function App(): React.JSX.Element {
           <Stack.Screen
             name="PersonalDataSettings"
             component={PersonalDataSettings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="FitnessLevelSettings"
+            component={FitnessLevelSettings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="FitnessGoalSettings"
+            component={FitnessGoalSettings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="TypeofTrainingSettings"
+            component={TypeofTrainingSettings}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

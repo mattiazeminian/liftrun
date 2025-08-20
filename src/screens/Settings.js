@@ -42,41 +42,45 @@ export default function SettingsScreen({ navigation }) {
           </Text>
         </View>
 
-        {/* Items */}
-        <SettingsItem
-          label="Personal data"
-          icon={<IdIcon />}
-          onPress={() => console.log('Account')}
-        />    
-        <SettingsItem
-          label="Type of training"
-          icon={<TrainIcon />}
-          onPress={() => console.log('Type')}
-        />
-        <SettingsItem
-          label="Schedule"
-          icon={<CalendarIcon />}
-          onPress={() => console.log('Availability')}
-        />
-        <SettingsItem
-          label="Equipment"
-          icon={<EquipmentIcon />}
-          onPress={() => console.log('Equipment')}
-        />
-        <SettingsItem
-          label="Fitness level"
-          icon={<FitnessLevelIcon />}
-          onPress={() => console.log('FitnessLevel')}
-        />
+        {/* Container item allineati a sinistra */}
+        <View style={styles.itemsContainer}>
+          <SettingsItem
+            label="Personal data"
+            icon={<IdIcon />}
+            onPress={() => navigation.navigate('PersonalDataSettings')}
+          />
+          <SettingsItem
+            label="Type of training"
+            icon={<TrainIcon />}
+            onPress={() => console.log('Type')}
+          />
+          <SettingsItem
+            label="Schedule"
+            icon={<CalendarIcon />}
+            onPress={() => console.log('Availability')}
+          />
+          <SettingsItem
+            label="Equipment"
+            icon={<EquipmentIcon />}
+            onPress={() => console.log('Equipment')}
+          />
+          <SettingsItem
+            label="Fitness level"
+            icon={<FitnessLevelIcon />}
+            onPress={() => console.log('FitnessLevel')}
+          />
+        </View>
 
         {/* Bottone in fondo */}
-        <Button
-          variant="primary"
-          style={styles.button}
-          onPress={() => console.log('Save / Continue')}
-        >
-          Create a new plan 🚀{' '}
-        </Button>
+        <View style={styles.buttonContainer}>
+          <Button
+            variant="primary"
+            style={styles.button}
+            onPress={() => console.log('Save / Continue')}
+          >
+            Create a new plan 🚀{' '}
+          </Button>
+        </View>
       </ScrollView>
     </View>
   );
@@ -91,13 +95,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.xxl, // spazio extra così il bottone respira
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   hero: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     gap: Spacing.md,
-    marginBottom: Spacing.xxl,
+    width: '100%',
   },
   heroTitle: {
     color: Colors.darkBlue,
@@ -108,8 +114,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     ...Typography.manrope.smRegular,
   },
+  itemsContainer: {
+    width: '100%',
+  },
+  buttonContainer: {
+    width: '100%',
+    marginTop: Spacing.xl,
+  },
   button: {
-    marginTop: Spacing.xxl,
-    marginBottom: Spacing.sm, // distacco dall'ultimo bordo
+    width: '100%',
   },
 });
