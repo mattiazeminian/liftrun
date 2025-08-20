@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
@@ -8,13 +9,18 @@ import Borders from '../variables/borders';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
+
 export default function NavigationProgress({
   leftContent,
   centerContent,
   rightContent,
   progress = 0,
   style = {},
-  onLeftClick,
+  onLeftClick, // optional custom left click handler
   onRightClick,
 }) {
   const navigation = useNavigation();
@@ -23,11 +29,21 @@ export default function NavigationProgress({
   const progressWidth = Math.max(
     progressClamped * (SCREEN_WIDTH - horizontalPadding - Spacing.xl * 2),
     2,
-  ); // min 2px
+  ); // minimum 2px width for visibility
+
+  // Trigger haptic feedback with 'selection' style on back press
+  const handleLeftPress = () => {
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions);
+    if (onLeftClick) {
+      onLeftClick();
+    } else {
+      navigation.goBack();
+    }
+  };
 
   return (
     <View style={[styles.nav, { width: SCREEN_WIDTH }, style]}>
-      {/* Barra di progresso */}
+      {/* Progress bar track */}
       <View
         style={[
           styles.progressBarWrapper,
@@ -36,22 +52,23 @@ export default function NavigationProgress({
         accessible
         accessibilityLabel="Progress bar"
       >
+        {/* Progress bar fill changes width according to progress */}
         <View style={[styles.progressBarFill, { width: progressWidth }]} />
       </View>
 
-      {/* Frame sinistro */}
+      {/* Left button with haptic feedback on press */}
       <TouchableOpacity
-        onPress={() => navigation.goBack()}
+        onPress={handleLeftPress}
         style={styles.leftFrame}
         activeOpacity={0.7}
       >
         {leftContent}
       </TouchableOpacity>
 
-      {/* Frame centro */}
+      {/* Center content */}
       <View style={[styles.centerFrame, { opacity: 1 }]}>{centerContent}</View>
 
-      {/* Frame destro */}
+      {/* Right button */}
       <TouchableOpacity
         onPress={onRightClick}
         style={[styles.rightFrame, { opacity: rightContent ? 1 : 0 }]}
@@ -69,7 +86,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 48,
+    marginTop: Spacing.xxl,
     alignItems: 'center',
     position: 'relative',
   },

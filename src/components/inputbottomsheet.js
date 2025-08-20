@@ -6,16 +6,22 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Colors from '../variables/colors';
 import Typography from '../variables/typography';
 import Spacing from '../variables/spacing';
 import Borders from '../variables/borders';
 import Radio from './radio';
-import { transparent } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SIDE_MARGIN = 16;
 const OPTION_WIDTH = SCREEN_WIDTH - SIDE_MARGIN * 2;
+
+// Haptic feedback options
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 const baseContainer = {
   width: OPTION_WIDTH,
@@ -23,7 +29,7 @@ const baseContainer = {
   paddingHorizontal: Spacing.sm,
   flexDirection: 'row',
   alignItems: 'center',
-  justifyContent: 'space-between', // per avere radio e testo sempre distanti agli estremi
+  justifyContent: 'space-between', // keeps radio and text spaced apart
   borderRadius: Borders.radius.regular,
 };
 
@@ -34,6 +40,19 @@ export default function InputOptionBottomsheet({
   disabled = false,
   onChange = () => {},
 }) {
+  // Function to trigger selection haptic feedback on press
+  const triggerHaptic = () => {
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions);
+  };
+
+  // Handler for press: triggers haptic feedback then calls onChange if not disabled
+  const handlePress = () => {
+    if (!disabled) {
+      triggerHaptic();
+      onChange(!selected);
+    }
+  };
+
   return (
     <TouchableOpacity
       style={[
@@ -41,12 +60,10 @@ export default function InputOptionBottomsheet({
         disabled && { opacity: 0.5 },
       ]}
       activeOpacity={0.7}
-      onPress={() => {
-        if (!disabled) onChange(!selected);
-      }}
+      onPress={handlePress} // press triggers haptic feedback
       disabled={disabled}
     >
-      {/* Testo a sinistra */}
+      {/* Left text label */}
       <Text
         style={[
           styles.label,
@@ -57,7 +74,7 @@ export default function InputOptionBottomsheet({
         {label}
       </Text>
 
-      {/* wrapper fisso a destra */}
+      {/* Fixed width wrapper on right for Radio */}
       <View style={styles.radioWrapper}>
         {selected ? (
           <Radio
@@ -66,7 +83,7 @@ export default function InputOptionBottomsheet({
             style={styles.radioCustom}
           />
         ) : (
-          <View style={{ width: 16, height: 16 }} /> // placeholder fisso
+          <View style={{ width: 16, height: 16 }} /> // fixed placeholder space
         )}
       </View>
     </TouchableOpacity>
@@ -94,10 +111,10 @@ const styles = StyleSheet.create({
   radioWrapper: {
     marginLeft: 'auto',
     marginRight: 16,
-    width: 16, // fissa la larghezza dello spazio
+    width: 16, // fixed width space
     height: 16,
     alignItems: 'center',
-    justifyContent: 'center', // centra verticalmente il Radio
+    justifyContent: 'center', // vertically center the Radio
   },
   radioCustom: {
     borderWidth: 0,

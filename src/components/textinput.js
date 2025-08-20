@@ -6,12 +6,18 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
 import Borders from '../variables/borders';
 import Shadows from '../variables/shadows';
 import AlertIcon from '../icons/alerticon';
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 export default function TextInput({
   value,
@@ -26,19 +32,25 @@ export default function TextInput({
   ...rest
 }) {
   const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef(null); // <--- crea ref
+  const inputRef = useRef(null); // Ref for programmatic focus control
 
   const isDisabled = disabled;
   const isError = !!errorMessage;
 
-  // Funzione per gestire il tocco sul contenitore
+  // Trigger 'selection' haptic feedback when interacting with the input container
+  const triggerHaptic = () => {
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions);
+  };
+
+  // On container press: trigger haptic feedback and focus input
   const handleContainerPress = () => {
     if (inputRef.current) {
-      inputRef.current.focus(); // focus input e apre tastiera
+      triggerHaptic();
+      inputRef.current.focus();
     }
   };
 
-  // Calcola stato "automatico"
+  // Determine input state for styling purposes
   let computedStatus = 'default';
   if (isDisabled) {
     computedStatus = 'disabled';
@@ -48,15 +60,14 @@ export default function TextInput({
     computedStatus = 'active';
   }
 
-  // Colore bordo
+  // Set colors based on status
   const borderColor =
     computedStatus === 'error'
       ? Colors.error
       : computedStatus === 'active'
-      ? Colors.darkBlue // o Colors.darkBlue se vuoi più evidenza
+      ? Colors.darkBlue
       : Colors.grey200;
 
-  // Colore etichetta
   const labelColor =
     computedStatus === 'disabled'
       ? Colors.grey200
@@ -64,16 +75,16 @@ export default function TextInput({
       ? Colors.error
       : Colors.darkBlue;
 
-  const textColor =
-    computedStatus === 'disabled' ? Colors.grey300 : Colors.darkBlue;
+  const textColor = computedStatus === 'disabled' ? Colors.grey300 : Colors.darkBlue;
 
   return (
     <View style={[styles.wrapper, style]}>
+      {/* Label, visible above the input field if provided */}
       {label ? (
         <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
       ) : null}
 
-      {/* Wrappa il contenitore input con touchabile */}
+      {/* Touchable wrapper to allow focusing input and provide haptic feedback */}
       <TouchableWithoutFeedback onPress={handleContainerPress}>
         <View
           style={[
@@ -87,7 +98,7 @@ export default function TextInput({
           ]}
         >
           <RNTextInput
-            ref={inputRef} // <--- assegna ref qui
+            ref={inputRef} // Ref assigned here for focus control
             style={[styles.input, { color: textColor }]}
             value={value}
             keyboardType={keyboardType}
@@ -97,17 +108,17 @@ export default function TextInput({
             editable={computedStatus !== 'disabled'}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            autoCorrect={false} // disabilita correzione
-            textContentType="none" // (iOS) disabilita autofill
-            keyboardAppearance="default" // opzionale, se vuoi tastiera scura su iOS
-            autoComplete="off" // disabilita completamento automatico (Android/iOS)
-            spellCheck={false} // disabilita controllo ortografico
+            autoCorrect={false}
+            textContentType="none"
+            keyboardAppearance="default"
+            autoComplete="off"
+            spellCheck={false}
             clearButtonMode="while-editing"
             selectionColor={Colors.darkBlue}
             {...rest}
           />
 
-          {/* Icona per stato default (grigia) o active (blu) */}
+          {/* Render custom icon when provided in default or active states */}
           {(computedStatus === 'default' || computedStatus === 'active') && (
             <View style={styles.iconWrapper}>
               {statusIconCustom
@@ -123,7 +134,7 @@ export default function TextInput({
             </View>
           )}
 
-          {/* Icona errore */}
+          {/* Show error icon if in error state */}
           {computedStatus === 'error' && (
             <View style={styles.iconWrapper}>
               <AlertIcon width={16} height={16} fill={Colors.error} />
@@ -132,11 +143,12 @@ export default function TextInput({
         </View>
       </TouchableWithoutFeedback>
 
+      {/* Error message below the input; reserves space for consistent layout */}
       <View style={styles.errorWrapper}>
         {computedStatus === 'error' && errorMessage ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
         ) : (
-          <Text style={styles.errorText}> </Text> // spazio invisibile
+          <Text style={styles.errorText}> </Text> /* Invisible placeholder */
         )}
       </View>
     </View>
@@ -157,9 +169,9 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 16,
     paddingHorizontal: Spacing.xs,
-    paddingVertical: 0, // esplicito
+    paddingVertical: 0,
     position: 'relative',
-    top: 9, // verrà applicato visto che c'è position relative
+    top: 9,
     textTransform: 'uppercase',
     backgroundColor: Colors.white,
     ...Typography.googleSansCode.xsRegular,
@@ -189,7 +201,7 @@ const styles = StyleSheet.create({
     ...Typography.manrope.xsMedium,
   },
   errorWrapper: {
-    minHeight: 18, // o altezza stimata del messaggio errore
+    minHeight: 18,
     marginLeft: Spacing.md,
   },
 });

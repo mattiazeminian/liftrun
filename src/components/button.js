@@ -1,7 +1,7 @@
-// src/components/Button.js
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Button as PaperButton } from 'react-native-paper';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
@@ -11,54 +11,53 @@ export default function Button({
   children,
   onClick,
   disabled,
-  variant = 'primary', // primary, secondary, tertiary
+  variant = 'primary',
   style,
   ...rest
 }) {
-  // Colori sfondo in base allo stato/variante
   const backgroundColors = {
     primary: disabled ? Colors.grey200 : Colors.darkBlue,
     secondary: disabled ? Colors.grey200 : Colors.white,
     tertiary: disabled ? Colors.grey200 : Colors.white,
   };
-
-  // Colori testo in base allo stato/variante
   const textColors = {
     primary: disabled ? Colors.grey300 : Colors.white,
     secondary: disabled ? Colors.grey300 : Colors.darkBlue,
     tertiary: disabled ? Colors.grey300 : Colors.darkBlue,
   };
-
-  // Colore bordo
   const borderColors = {
     primary: 'transparent',
     secondary: disabled ? Colors.grey200 : Colors.darkBlue,
     tertiary: disabled ? Colors.grey200 : Colors.darkBlue,
   };
-
-  // Padding per variante
   const contentStylesByVariant = {
-    primary: {
-      paddingVertical: Spacing.xxs,
-      paddingHorizontal: Spacing.lg,
-    },
-    secondary: {
-      paddingVertical: Spacing.xxs,
-      paddingHorizontal: Spacing.lg,
-    },
-    tertiary: {
-      paddingVertical: Spacing.none,
-      paddingHorizontal: Spacing.lg,
-    },
+    primary: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.lg },
+    secondary: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.lg },
+    tertiary: { paddingVertical: Spacing.xxs, paddingHorizontal: Spacing.lg },
   };
 
-  const mode = 'contained';
+  const hapticOptions = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
+
+  // Trigger haptic feedback on press-in (touch down)
+  const handlePressIn = () => {
+    if (!disabled) {
+      try {
+        ReactNativeHapticFeedback.trigger('soft', hapticOptions);
+      } catch (e) {
+        console.warn('Haptic feedback error:', e);
+      }
+    }
+  };
 
   return (
     <PaperButton
-      mode={mode}
-      onPress={onClick}
+      mode="contained"
       disabled={disabled}
+      onPress={onClick}
+      onPressIn={handlePressIn} // Haptics trigger on press down
       contentStyle={contentStylesByVariant[variant]}
       style={[
         styles.button,

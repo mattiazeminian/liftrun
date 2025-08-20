@@ -1,11 +1,16 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import LogoIcon from '../icons/logoicon'; // Assumo che LogoIcon sia compatibile con RN (SVG o component)
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import LogoIcon from '../icons/logoicon'; // Assumed to be React Native compatible (SVG or component)
 import Spacing from '../variables/spacing';
 import Colors from '../variables/colors';
-import { shadow } from 'react-native-paper';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 export default function Navigation({
   leftContent,
@@ -16,22 +21,43 @@ export default function Navigation({
   centerContent = null,
   style = {},
 }) {
+  // Trigger 'selection' haptic feedback on left button press
+  const triggerHaptic = () => {
+    ReactNativeHapticFeedback.trigger('soft', hapticOptions);
+  };
+
+  // Wrap left click to provide haptic feedback before invoking passed handler
+  const handleLeftClick = () => {
+    triggerHaptic();
+    if (onLeftClick) {
+      onLeftClick();
+    }
+  };
+
+  // Right click handler without haptic (or add if needed)
+  const handleRightClick = () => {
+    if (onRightClick) {
+      onRightClick();
+    }
+  };
+
   return (
     <View style={[styles.nav, style]}>
-      {/* Sinistra */}
+      {/* Left touchable area with haptic feedback */}
       <TouchableOpacity
-        onPress={onLeftClick}
+        onPress={handleLeftClick} // Haptic triggered here on left click
         style={styles.leftFrame}
         activeOpacity={0.7}
       >
         {leftContent}
       </TouchableOpacity>
 
-      {/* Centro */}
-      {showCenter ? centerContent ? centerContent : <LogoIcon /> : null}
-      {/* Destra */}
+      {/* Center content or Logo */}
+      {showCenter ? (centerContent ? centerContent : <LogoIcon />) : null}
+
+      {/* Right touchable area without haptic */}
       <TouchableOpacity
-        onPress={onRightClick}
+        onPress={handleRightClick}
         style={styles.rightFrame}
         activeOpacity={0.7}
       >
@@ -44,10 +70,10 @@ export default function Navigation({
 const styles = StyleSheet.create({
   nav: {
     flexDirection: 'row',
-    width: SCREEN_WIDTH, // Occupare tutta la larghezza schermo
+    width: SCREEN_WIDTH, // Occupies full screen width
     height: 92,
     paddingHorizontal: Spacing.md,
-    marginTop: 64,
+    marginTop: Spacing.xxl,
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.white,

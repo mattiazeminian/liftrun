@@ -41,7 +41,10 @@ export default function PickerInput({
   unitText = 'KG',
   defaultIndex,
 }) {
+  // Generate the list of numbers to display in the picker based on min and max
   const numbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+
+  // Determine the default selected index, falling back to middle if unspecified or invalid
   const effectiveDefaultIndex =
     defaultIndex !== undefined &&
     defaultIndex >= 0 &&
@@ -49,17 +52,25 @@ export default function PickerInput({
       ? defaultIndex
       : Math.floor(numbers.length / 2);
 
+  // State to control modal visibility and animation lock
   const [modalVisible, setModalVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
+
+  // State for tracking the currently selected index in the number list
   const [selectedIndex, setSelectedIndex] = useState(
     value ? numbers.indexOf(parseInt(value, 10)) : effectiveDefaultIndex,
   );
 
   const flatListRef = useRef(null);
+
+  // Animated values for overlay opacity and modal vertical slide position
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(MODAL_HEIGHT)).current;
+
+  // Used for throttling haptic feedback during scroll (max one vibration per 200ms)
   const lastHapticTimeRef = useRef(0);
 
+  // Sync scroll position and selected index when modal is opened
   useEffect(() => {
     if (modalVisible && flatListRef.current) {
       const index = value ? numbers.indexOf(parseInt(value, 10)) : effectiveDefaultIndex;
@@ -72,62 +83,70 @@ export default function PickerInput({
     }
   }, [modalVisible]);
 
+  // Trigger a subtle haptic feedback (light impact) for user interactions
   const triggerHaptic = () => {
-    ReactNativeHapticFeedback.trigger('impactLight', hapticOptions);
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions);
   };
 
+  // Open modal with fade in overlay and slide up animation, also trigger haptic feedback
   const openModal = () => {
-    if (disabled || modalVisible || animating) return;
+    if (disabled || modalVisible || animating) return; // Prevent multiple opens or during animation
     triggerHaptic();
     setModalVisible(true);
     setAnimating(true);
     Animated.parallel([
       Animated.timing(fadeAnim, {
-        toValue: 0.5,
+        toValue: 0.5, // semi-transparent overlay
         duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: 0,
+        toValue: 0, // slide modal up into visible area
         duration: 300,
         useNativeDriver: true,
       }),
     ]).start(() => {
-      setAnimating(false);
+      setAnimating(false); // Unlock animation state when done
     });
   };
 
+  // Close modal with fade out overlay and slide down animation, then call onValueChange callback
   const closeModal = () => {
-    if (animating) return;
+    if (animating) return; // Prevent close while animation running
     setAnimating(true);
     Animated.parallel([
       Animated.timing(fadeAnim, {
-        toValue: 0,
+        toValue: 0, // fade out overlay
         duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: MODAL_HEIGHT,
+        toValue: MODAL_HEIGHT, // slide modal down off screen
         duration: 300,
         useNativeDriver: true,
       }),
     ]).start(() => {
       setAnimating(false);
       setModalVisible(false);
+      // Notify parent component of the selected value on modal close
       onValueChange(numbers[selectedIndex].toString());
     });
   };
 
+  // Handle opening triggered by pressing the input container
   const handleOpen = () => openModal();
 
+  // Handle close triggered by overlay press or system back button
   const handleClose = () => closeModal();
 
+  // Handle selection of an item from the list with haptic feedback and close modal
   const handleSelectIndex = (index) => {
     triggerHaptic();
     setSelectedIndex(index);
     closeModal();
   };
 
+  // Handle scroll event - update selected index and trigger haptic feedback throttled
   const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -140,12 +159,14 @@ export default function PickerInput({
     }
   };
 
+  // When scrolling momentum ends, snap the selected index precisely
   const handleMomentumScrollEnd = (e) => {
     const offsetY = e.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setSelectedIndex(Math.max(0, Math.min(numbers.length - 1, index)));
   };
 
+  // Determine border and label colors depending on disabled/error states
   const borderColor = disabled
     ? Colors.grey200
     : value
@@ -158,10 +179,12 @@ export default function PickerInput({
 
   return (
     <View style={[styles.wrapper, style]}>
+      {/* Label above the input if provided */}
       {label ? (
         <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
       ) : null}
 
+      {/* Touchable input displaying the current value and unit, opens modal on press */}
       <TouchableWithoutFeedback onPress={handleOpen}>
         <View
           style={[
@@ -184,6 +207,7 @@ export default function PickerInput({
         </View>
       </TouchableWithoutFeedback>
 
+      {/* Error message placeholder below the input */}
       <View style={styles.errorWrapper}>
         {isError ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
@@ -192,14 +216,17 @@ export default function PickerInput({
         )}
       </View>
 
+      {/* Custom modal with animated overlay (fade) and picker sliding up/down */}
       <Modal visible={modalVisible} transparent animationType="none" onRequestClose={handleClose}>
         <View style={styles.wrapperModal}>
+          {/* Animated overlay with fade effect; tapping closes modal */}
           <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
             <TouchableWithoutFeedback onPress={handleClose}>
               <View style={styles.overlayTouchable} />
             </TouchableWithoutFeedback>
           </Animated.View>
 
+          {/* Animated modal container slides vertically */}
           <Animated.View
             style={[styles.modalWrapper, { width, transform: [{ translateY: slideAnim }] }]}
           >
@@ -207,8 +234,10 @@ export default function PickerInput({
               <View style={styles.handleBar} />
             </View>
 
+            {/* Title indicating what the picker is for */}
             <Text style={styles.title}>{unitTitle}</Text>
 
+            {/* Scrollable flat list showing selectable numbers */}
             <View style={styles.scrollWrapper}>
               <FlatList
                 keyboardShouldPersistTaps="handled"
@@ -226,7 +255,7 @@ export default function PickerInput({
                 })}
                 onScroll={handleScroll}
                 onMomentumScrollEnd={handleMomentumScrollEnd}
-                scrollEventThrottle={16}
+                scrollEventThrottle={10}
                 renderItem={({ item, index }) => {
                   const isSelected = index === selectedIndex;
                   return (

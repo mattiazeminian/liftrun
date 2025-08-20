@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
@@ -14,6 +15,11 @@ import Shadows from '../variables/shadows';
 import AlertIcon from '../icons/alerticon';
 import ChevronDown from '../icons/chevrondown';
 import ChevronUp from '../icons/chevronup';
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 export default function DropdownInput({
   value,
@@ -25,14 +31,14 @@ export default function DropdownInput({
   style,
   ...rest
 }) {
-  // stato per cambiare la freccia
+  // State to toggle arrow icon direction
   const [isOpen, setIsOpen] = useState(false);
 
   const isError = !!errorMessage;
   const isDisabled = disabled;
   const isActive = isOpen || (!!value && value.length > 0);
 
-  // Colori dinamici
+  // Dynamic colors based on state
   const borderColor = isError
     ? Colors.error
     : isActive
@@ -47,10 +53,12 @@ export default function DropdownInput({
 
   const textColor = isDisabled ? Colors.grey300 : Colors.darkBlue;
 
-  // Gestore apertura: toggle freccia e chiama onPress
+  // Handle press: toggle arrow and call onPress external callback
+  // Also trigger haptic feedback on press
   const handlePress = () => {
     if (isDisabled) return;
     setIsOpen(prev => !prev);
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions); // haptic feedback here
     if (typeof onPress === 'function') onPress();
   };
 
@@ -73,8 +81,8 @@ export default function DropdownInput({
             value={value}
             placeholder={placeholder}
             placeholderTextColor={Colors.grey400}
-            editable={false} // NON editabile!
-            pointerEvents="none" // evita focus accidentali
+            editable={false} // NOT editable!
+            pointerEvents="none" // prevent accidental focus
             {...rest}
           />
 
@@ -98,7 +106,7 @@ export default function DropdownInput({
         {isError && errorMessage ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
         ) : (
-          <Text style={styles.errorText}> </Text> // spazio invisibile per mantenere altezza
+          <Text style={styles.errorText}> </Text> // invisible space to maintain height
         )}
       </View>
     </View>

@@ -1,10 +1,16 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Colors from '../variables/colors';
 import Typography from '../variables/typography';
 import Spacing from '../variables/spacing';
 import Borders from '../variables/borders';
 import Shadows from '../variables/shadows';
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 export default function CustomRadio({
   selected,
@@ -14,10 +20,23 @@ export default function CustomRadio({
   style,
   ...rest
 }) {
+  // Trigger 'selection' haptic feedback on press (iOS standard for picker/wheel)
+  const triggerHaptic = () => {
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions);
+  };
+
+  // Handle radio press: fire haptic feedback and call onChange if not disabled
+  const handlePress = () => {
+    if (!disabled) {
+      triggerHaptic();
+      onChange(true);
+    }
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={disabled ? 1 : 0.8}
-      onPress={() => !disabled && onChange && onChange(true)}
+      onPress={handlePress}
       disabled={disabled}
       style={[
         styles.container,
@@ -66,6 +85,7 @@ const styles = StyleSheet.create({
   },
   containerChecked: {
     backgroundColor: Colors.grey100,
+    borderColor: Colors.darkBlue,
   },
   radio: {
     width: RADIO_SIZE,
@@ -96,6 +116,5 @@ const styles = StyleSheet.create({
     color: Colors.darkBlue,
     marginLeft: Spacing.sm,
     ...Typography.manrope.smRegular,
-    height: 24,
   },
 });

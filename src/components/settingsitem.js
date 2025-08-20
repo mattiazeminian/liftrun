@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
 import Typography from '../variables/typography';
@@ -7,24 +8,42 @@ import Borders from '../variables/borders';
 import Shadows from '../variables/shadows';
 import ChevronRight from '../icons/chevronright';
 
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
+
 export default function SettingsItem({ label, icon, onPress }) {
+  // Trigger 'selection' haptic feedback on press for tactile feedback
+  const triggerHaptic = () => {
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions);
+  };
+
+  // Wrap the onPress to trigger haptic feedback before executing onPress prop
+  const handlePress = () => {
+    triggerHaptic();
+    if (onPress) {
+      onPress();
+    }
+  };
+
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={onPress}
+      onPress={handlePress} // handle touch with haptic feedback
       activeOpacity={0.7}
     >
-      {/* Icona a sinistra */}
+      {/* Left icon, if passed */}
       {icon && (
         <View style={styles.iconWrapper}>
           {React.cloneElement(icon, { width: 16, height: 16 })}
         </View>
       )}
 
-      {/* Testo */}
+      {/* Label text */}
       <Text style={styles.text}>{label}</Text>
 
-      {/* Chevron a destra */}
+      {/* Right chevron icon */}
       <View style={styles.chevron}>
         <ChevronRight width={12} height={12} />
       </View>
@@ -55,7 +74,7 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     color: Colors.darkBlue,
-    ...Typography.manrope.mdRegular,
+    ...Typography.manrope.smRegular,
   },
   chevron: {
     marginLeft: Spacing.sm,

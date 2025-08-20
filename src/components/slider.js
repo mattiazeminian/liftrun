@@ -5,8 +5,10 @@ import {
   TextInput,
   Dimensions,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import Colors from '../variables/colors';
 import Spacing from '../variables/spacing';
@@ -14,6 +16,11 @@ import Typography from '../variables/typography';
 import Borders from '../variables/borders';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 export default function CustomSlider({
   label = '',
@@ -33,7 +40,12 @@ export default function CustomSlider({
     setInputValue(String(value));
   }, [value]);
 
-  // Consenti solo input numerico valido (intero o decimale se step<1)
+  // Trigger 'selection' haptic feedback for slider interaction
+  const triggerHaptic = () => {
+    ReactNativeHapticFeedback.trigger('selection', hapticOptions);
+  };
+
+  // Allow only valid numeric input (integer or decimal if step < 1)
   const handleInputChange = (text) => {
     const regex = step < 1 ? /^[0-9]*\.?[0-9]*$/ : /^[0-9]*$/;
     if (regex.test(text)) {
@@ -41,6 +53,7 @@ export default function CustomSlider({
     }
   };
 
+  // When finishing editing input, validate and adjust value, then notify parent
   const handleInputEndEditing = () => {
     let numeric = parseFloat(inputValue);
 
@@ -58,6 +71,12 @@ export default function CustomSlider({
     if (numeric !== value) {
       onValueChange(numeric);
     }
+  };
+
+  // Trigger haptic feedback on slider value change
+  const handleSliderChange = (val) => {
+    triggerHaptic();
+    onValueChange(val);
   };
 
   const horizontalPadding = Spacing.md * 2;
@@ -94,7 +113,7 @@ export default function CustomSlider({
         minimumTrackTintColor={Colors.darkBlue}
         maximumTrackTintColor={Colors.grey200}
         thumbTintColor={Colors.darkBlue}
-        onValueChange={onValueChange}
+        onValueChange={handleSliderChange} // with haptic trigger
       />
     </View>
   );
