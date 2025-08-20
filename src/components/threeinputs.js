@@ -7,10 +7,10 @@ import Spacing from '../variables/spacing';
 import Borders from '../variables/borders';
 
 // Number only input with customizable width
-export function ThreeInputs({ value, onChange, width }) {
+export function ThreeInputs({ value, onChange, width, style }) {
   return (
     <TextInput
-      style={[styles.inputBase, { width }]}
+      style={[styles.inputBase, { width }, style]}
       value={value}
       onChangeText={onChange}
       keyboardType="numeric"
@@ -18,14 +18,21 @@ export function ThreeInputs({ value, onChange, width }) {
       returnKeyType="done"
       textContentType="none"
       underlineColorAndroid="transparent"
+      selectionColor={Colors.darkBlue}
     />
   );
 }
 
 // Number + text input with fixed width 72px
-export function NumberWithTextInput({ value, onChange, textLabel, width }) {
+export function NumberWithTextInput({
+  value,
+  onChange,
+  textLabel,
+  width,
+  style,
+}) {
   return (
-    <View style={[styles.numberWithTextContainer, { width }]}>
+    <View style={[styles.numberWithTextContainer, { width }, style]}>
       <TextInput
         style={styles.numberPart}
         value={value}
@@ -35,6 +42,7 @@ export function NumberWithTextInput({ value, onChange, textLabel, width }) {
         returnKeyType="done"
         textContentType="none"
         underlineColorAndroid="transparent"
+        selectionColor={Colors.darkBlue}
       />
       <Text style={styles.textPart}>{textLabel}</Text>
     </View>
@@ -46,14 +54,14 @@ const styles = StyleSheet.create({
     color: Colors.darkBlue,
     ...Typography.googleSansCode.input,
     textAlign: 'center',
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.m,
     borderRadius: Borders.radius.regular,
     borderWidth: Borders.widths.thin,
     borderColor: Colors.grey200,
   },
   numberWithTextContainer: {
     flexDirection: 'row',
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.m,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: Borders.radius.regular,

@@ -11,40 +11,53 @@ const hapticOptions = {
   ignoreAndroidSystemSettings: false,
 };
 
+const CHECKBOX_SIZE = 16;
+const DOT_SIZE = 8;
+
 export default function ExerciseRow({
   initialNumber = '5',
-  checked,
-  onCheckChange,
   disabled = false,
 }) {
-  // Trigger haptic feedback and toggle checked state only when checkbox pressed
+  const [checked, setChecked] = useState(false);
+
   const handleCheckboxPress = () => {
     if (!disabled) {
       ReactNativeHapticFeedback.trigger('selection', hapticOptions);
-      if (onCheckChange) {
-        onCheckChange(!checked);
-      }
+      setChecked(!checked);
     }
   };
+
+  // Define dynamic style for inputs’ borders based on checked state
+  const inputBorderStyle = checked ? styles.inputBorderChecked : styles.inputBorderDefault;
 
   return (
     <View
       style={[
         styles.container,
-        checked && styles.containerChecked, // change background on selected
+        checked && styles.containerChecked,
         disabled && styles.disabledContainer,
       ]}
     >
-      <ThreeInputs value={initialNumber} onChange={() => {}} width={32} />
+      <ThreeInputs
+        value={initialNumber}
+        onChange={() => {}}
+        width={32}
+        style={inputBorderStyle}
+      />
       <NumberWithTextInput
         value={initialNumber}
         onChange={() => {}}
         textLabel="CM"
         width={72}
+        style={inputBorderStyle}
       />
-      <ThreeInputs value={initialNumber} onChange={() => {}} width={48} />
+      <ThreeInputs
+        value={initialNumber}
+        onChange={() => {}}
+        width={48}
+        style={inputBorderStyle}
+      />
 
-      {/* Checkbox wrapper 24x24, only this toggles selection on press */}
       <TouchableOpacity
         style={styles.checkboxWrapper}
         onPress={handleCheckboxPress}
@@ -65,14 +78,11 @@ export default function ExerciseRow({
   );
 }
 
-const CHECKBOX_SIZE = 16;
-const DOT_SIZE = 8;
-
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     width: '100%',
-    padding: Spacing.md,
+    padding: Spacing.sm,
     borderRadius: Borders.radius.regular,
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -81,15 +91,23 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   containerChecked: {
-    backgroundColor: Colors.grey100,
-    borderColor: Colors.grey300,
+    backgroundColor: '#D5D9EB',
   },
   disabledContainer: {
     opacity: 0.5,
   },
+  // Border style applied to inputs when checkbox is selected
+  inputBorderDefault: {
+    borderColor: Colors.grey300,
+    borderWidth: Borders.widths.thin,
+    borderRadius: Borders.radius.regular,
+  },
+  inputBorderChecked: {
+    borderColor: Colors.darkBlue,
+  },
   checkboxWrapper: {
     width: 48,
-    height: 32,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -108,7 +126,6 @@ const styles = StyleSheet.create({
   checkboxChecked: {
     borderWidth: Borders.widths.regular,
     borderColor: Colors.darkBlue,
-    backgroundColor: Colors.darkBlue,
   },
   checkboxDisabled: {
     opacity: 0.6,
@@ -117,6 +134,6 @@ const styles = StyleSheet.create({
     width: DOT_SIZE,
     height: DOT_SIZE,
     borderRadius: DOT_SIZE / 2,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.darkBlue,
   },
 });
