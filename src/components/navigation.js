@@ -36,6 +36,7 @@ export default function Navigation({
 
   // Right click handler without haptic (or add if needed)
   const handleRightClick = () => {
+    triggerHaptic();
     if (onRightClick) {
       onRightClick();
     }
@@ -53,7 +54,7 @@ export default function Navigation({
       </TouchableOpacity>
 
       {/* Center content or Logo */}
-      {showCenter ? (centerContent ? centerContent : <LogoIcon />) : null}
+      {showCenter ? centerContent ? centerContent : <LogoIcon /> : null}
 
       {/* Right touchable area without haptic */}
       <TouchableOpacity

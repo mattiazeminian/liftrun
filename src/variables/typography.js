@@ -120,6 +120,13 @@ const Typography = {
         fontWeight: '400',
         textTransform: 'uppercase',
         },
+        input: {
+        fontFamily: 'Google Sans Code',
+        fontSize: 16,
+        lineHeight: 0,
+        fontWeight: '500',
+        textTransform: 'uppercase',
+        },
     },
 
     // Definizione dettagliata per Roboto Serif usato principalmente per testi più "classici"

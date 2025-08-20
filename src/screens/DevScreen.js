@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import Button from '../components/button';
 import SmallButton from '../components/buttonsmall';
 import CustomCheckbox from '../components/checkbox';
@@ -12,8 +18,8 @@ import InputOptionBottomsheet from '../components/inputbottomsheet';
 import Navigation from '../components/navigation';
 import NavigationProgress from '../components/navigationprogress';
 import CustomSlider from '../components/slider';
-import { KeyboardAvoidingView, Platform } from 'react-native';
 import PickerInput from '../components/picker';
+import ExerciseRow from '../components/exerciserow'; // Add this import
 
 import Colors from '../variables/colors';
 
@@ -21,29 +27,19 @@ import ArrowLeft from '../icons/arrowleft';
 import SettingsIcon from '../icons/settingsicon';
 
 export default function DevScreen() {
-  // Stato di esempio per progress (da 0 a 1)
   const [progress, setProgress] = React.useState(0.2);
-
   const [selectedHeight, setSelectedHeight] = useState('');
-
-  // Stati dei text input
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-
-  // Stato dropdown
   const [selectedCountry, setSelectedCountry] = useState('');
-
-  // Stato apertura BottomSheet
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
-
-  // Stati per 4 checkbox (array o singoli stati)
   const [checkboxes, setCheckboxes] = useState([false, false, false, false]);
-
-  // Stato per gruppo radio (stringa / numero / valore univoco)
   const [selectedRadio, setSelectedRadio] = useState(null);
-
-  // Nuovo stato per slider
   const [sliderValue, setSliderValue] = useState(50);
+
+  const [repValue, setRepValue] = useState('5');
+  const [unitValue, setUnitValue] = useState('5');
+  const [repetitionValue, setRepetitionValue] = useState('5');
 
   const toggleCheckbox = index => {
     setCheckboxes(prev => {
@@ -55,29 +51,31 @@ export default function DevScreen() {
 
   return (
     <>
-      {/* Navigation fixa in alto */}
       <Navigation
-        leftContent={<ArrowLeft></ArrowLeft>}
-        rightContent={<SettingsIcon></SettingsIcon>}
-        onLeftClick={() => {
-          alert('Left premuto');
-        }}
-        onRightClick={() => {
-          alert('Right premuto');
-        }}
+        leftContent={<ArrowLeft />}
+        rightContent={<SettingsIcon />}
+        onLeftClick={() => alert('Left premuto')}
+        onRightClick={() => alert('Right premuto')}
       />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={24} // <--- margine extra sopra la tastiera
+        keyboardVerticalOffset={24}
       >
         <ScrollView
           style={styles.container}
           contentContainerStyle={[styles.contentContainer]}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Esempi di bottoni con varianti e stato disabled */}
+          {/* Replace NumberInputs group with ExerciseRow */}
+          <Text style={styles.sectionTitle}>Exercise Row Example</Text>
+          <ExerciseRow
+            initialNumber="5"
+            radioSelected={selectedRadio === 0}
+            onRadioChange={() => setSelectedRadio(0)}
+          />
+
           <Text style={styles.sectionTitle}>Button Regular</Text>
           <Button variant="primary" onClick={() => alert('Primario premuto')}>
             SIGN IN
@@ -99,7 +97,6 @@ export default function DevScreen() {
             Terziario
           </Button>
 
-          {/* Small buttons */}
           <Text style={styles.sectionTitle}>Small Buttons</Text>
 
           <SmallButton variant="default" onPress={() => alert('Small Default')}>
@@ -114,7 +111,6 @@ export default function DevScreen() {
             REMOVE
           </SmallButton>
 
-          {/* PICKER INPUT */}
           <Text style={styles.sectionTitle}>Picker Input</Text>
           <PickerInput
             label="Altezza"
@@ -125,17 +121,14 @@ export default function DevScreen() {
             max={220}
           />
 
-          {/* DROPDOWN */}
           <Text style={styles.sectionTitle}>Dropdown Input</Text>
           <DropdownInput
             label="Paese"
             placeholder="Seleziona paese"
             value={selectedCountry}
-            // Qui in futuro aprirai la BottomSheet
             onPress={() => setBottomSheetOpen(true)}
           />
 
-          {/* TEXTINPUT */}
           <Text style={styles.sectionTitle}>Text Inputs</Text>
           <TextInput
             label="Username"
@@ -143,7 +136,7 @@ export default function DevScreen() {
             value={username}
             onChangeText={setUsername}
             keyboardType="default"
-            statusIconCustom={<ArrowLeft></ArrowLeft>}
+            statusIconCustom={<ArrowLeft />}
           />
 
           <TextInput
@@ -163,7 +156,6 @@ export default function DevScreen() {
             disabled
           />
 
-          {/* ===== CUSTOM SLIDER ===== */}
           <Text style={styles.sectionTitle}>Custom Slider</Text>
           <CustomSlider
             label="Volume"
@@ -177,7 +169,6 @@ export default function DevScreen() {
 
           <Text>Valore slider: {sliderValue}</Text>
 
-          {/* CHECKBOX GROUP */}
           <Text style={styles.sectionTitle}>Checkbox Group</Text>
 
           {['Opzione A', 'Opzione B', 'Opzione C', 'Opzione D'].map(
@@ -192,7 +183,6 @@ export default function DevScreen() {
             ),
           )}
 
-          {/* RADIO GROUP */}
           <Text style={styles.sectionTitle}>Radio Group</Text>
 
           {['Scelta 1', 'Scelta 2', 'Scelta 3', 'Scelta 4'].map(
@@ -209,14 +199,11 @@ export default function DevScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* BottomSheet */}
       <BottomSheet
         open={bottomSheetOpen}
         onClose={() => setBottomSheetOpen(false)}
         title="Seleziona un paese"
       >
-        {/* Qui puoi mettere il contenuto della bottom sheet,
-                ad esempio una lista di paesi cliccabili */}
         <InputOptionBottomsheet
           id="it"
           label="Italia"
@@ -258,6 +245,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'red',
     marginTop: 20,
+  },
+  exerciseRowContainer: {
+    flexDirection: 'row',
+    width: 315,
+    padding: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  radioContainer: {
+    width: 48,
+    paddingVertical: 4,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   checkbox: {
     marginVertical: 4,
