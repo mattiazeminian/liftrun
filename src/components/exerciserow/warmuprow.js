@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import Colors from '../variables/colors';
-import Spacing from '../variables/spacing';
-import Borders from '../variables/borders';
+import Colors from '../../variables/colors';
+import Spacing from '../../variables/spacing';
+import Borders from '../../variables/borders';
 
 import PickerInput from './pickerinput_clean';
 
@@ -16,14 +16,13 @@ const hapticOptions = {
 const CHECKBOX_SIZE = 16;
 const DOT_SIZE = 8;
 
-export default function BodyweightRow({
+export default function WarmUpRow({
   initialNumber = '10',
   disabled = false,
   showText = true,
 }) {
   const [checked, setChecked] = useState(false);
   const [value1, setValue1] = useState(initialNumber);
-  const [value2, setValue2] = useState(initialNumber);
 
   const handleCheckboxPress = () => {
     if (!disabled) {
@@ -48,22 +47,11 @@ export default function BodyweightRow({
         disabled && styles.disabledContainer,
       ]}
     >
-      <PickerInput
-        unitTitle="Sets"
-        value={value1}
-        onValueChange={handleValueChange(setValue1, 1, 9)}
-        unitText={null}
-        min={1}
-        max={9}
-        width={32}
-        style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false} // rimuove completamente lo spazio
-      />
 
       <PickerInput
         unitTitle="Mins"
-        value={value2}
-        onValueChange={handleValueChange(setValue2, 0, 999)}
+        value={value1}
+        onValueChange={handleValueChange(setValue1, 0, 999)}
         unitText={null}
         min={0}
         max={999}

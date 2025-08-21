@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import Colors from '../variables/colors';
-import Spacing from '../variables/spacing';
-import Borders from '../variables/borders';
+import Colors from '../../variables/colors';
+import Spacing from '../../variables/spacing';
+import Borders from '../../variables/borders';
 
 import PickerInput from './pickerinput_clean';
 

@@ -19,10 +19,10 @@ import Navigation from '../components/navigation';
 import NavigationProgress from '../components/navigationprogress';
 import CustomSlider from '../components/slider';
 import PickerInput from '../components/pickerinput';
-import ExerciseRow from '../components/exerciserow'; // Add this import
-import RunningRow from '../components/runningrow'; // Add this import
-import BodyweightRow from '../components/bodyweightrow'; // Add this import
-import WarmUpRow from '../components/warmuprow'; // Add this import
+import ExerciseRow from '../components/exerciserow/exerciserow'; // Add this import
+import RunningRow from '../components/exerciserow/runningrow'; // Add this import
+import BodyweightRow from '../components/exerciserow/bodyweightrow'; // Add this import
+import WarmUpRow from '../components/exerciserow/warmuprow'; // Add this import
 
 
 

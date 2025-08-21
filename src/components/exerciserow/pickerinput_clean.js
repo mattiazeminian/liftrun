@@ -12,11 +12,11 @@ import {
 } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import Colors from '../variables/colors';
-import Spacing from '../variables/spacing';
-import Typography from '../variables/typography';
-import Borders from '../variables/borders';
-import Shadows from '../variables/shadows';
+import Colors from '../../variables/colors';
+import Spacing from '../../variables/spacing';
+import Typography from '../../variables/typography';
+import Borders from '../../variables/borders';
+import Shadows from '../../variables/shadows';
 
 const ITEM_HEIGHT = 50;
 const { height, width: SCREEN_WIDTH } = Dimensions.get('window');

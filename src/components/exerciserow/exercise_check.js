@@ -2,11 +2,11 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import Colors from '../variables/colors';
-import Borders from '../variables/borders';
-import Shadows from '../variables/shadows';
-import Typography from '../variables/typography';
-import Spacing from '../variables/spacing';
+import Colors from '../../variables/colors';
+import Borders from '../../variables/borders';
+import Shadows from '../../variables/shadows';
+import Typography from '../../variables/typography';
+import Spacing from '../../variables/spacing';
 
 const hapticOptions = {
   enableVibrateFallback: true,
