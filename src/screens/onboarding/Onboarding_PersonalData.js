@@ -24,7 +24,7 @@ import IdIcon from '../../icons/idicon';
 import CmIcon from '../../icons/cmicon';
 import KgIcon from '../../icons/kgicon';
 
-import PickerInput from '../../components/picker'; // import tuo picker
+import PickerInput from '../../components/pickerinput'; // import tuo picker
 
 export default function PersonalDataForm() {
   const navigation = useNavigation();
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    marginBottom: 0, 
+    marginBottom: 0,
   },
   button: {
     width: '100%',

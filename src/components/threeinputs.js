@@ -1,48 +1,45 @@
 import React from 'react';
-import { View, TextInput, Text, StyleSheet } from 'react-native';
-
+import { View, StyleSheet, Text } from 'react-native';
 import Colors from '../variables/colors';
 import Typography from '../variables/typography';
 import Spacing from '../variables/spacing';
-import Borders from '../variables/borders';
+import PickerInput from './pickerinput_clean';
 
-// Number only input with customizable width
-export function ThreeInputs({ value, onChange, width, style }) {
+// Number-only input
+export function ThreeInputs({ value, onChange, width = 56, style }) {
   return (
-    <TextInput
-      style={[styles.inputBase, { width }, style]}
+    <PickerInput
       value={value}
-      onChangeText={onChange}
-      keyboardType="numeric"
-      maxLength={2}
-      returnKeyType="done"
-      textContentType="none"
-      underlineColorAndroid="transparent"
-      selectionColor={Colors.darkBlue}
+      onValueChange={onChange}
+      style={[styles.baseInput, { width }, style]}
+      min={0}
+      max={99}
+      unitText=""
+      placeholder="--"
+      label={null}
+      errorMessage={null}
+      textStyle={styles.pickerText}       // centra il numero
+      pickerStyle={styles.pickerNoBorder} // rimuove bordo interno
     />
   );
 }
 
-// Number + text input with fixed width 72px
-export function NumberWithTextInput({
-  value,
-  onChange,
-  textLabel,
-  width,
-  style,
-}) {
+// Number + text input
+export function NumberWithTextInput({ value, onChange, textLabel, width = 72, style }) {
   return (
-    <View style={[styles.numberWithTextContainer, { width }, style]}>
-      <TextInput
-        style={styles.numberPart}
+    <View style={[styles.container, { width }, style]}>
+      <PickerInput
         value={value}
-        onChangeText={onChange}
-        keyboardType="numeric"
-        maxLength={3}
-        returnKeyType="done"
-        textContentType="none"
-        underlineColorAndroid="transparent"
-        selectionColor={Colors.darkBlue}
+        onValueChange={onChange}
+        style={styles.numberPart}
+        min={0}
+        max={999}
+        unitText=""
+        placeholder="--"
+        label={null}
+        errorMessage={null}
+        textStyle={styles.pickerText}
+        pickerStyle={styles.pickerNoBorder}
       />
       <Text style={styles.textPart}>{textLabel}</Text>
     </View>
@@ -50,32 +47,21 @@ export function NumberWithTextInput({
 }
 
 const styles = StyleSheet.create({
-  inputBase: {
-    color: Colors.darkBlue,
-    ...Typography.googleSansCode.input,
-    textAlign: 'center',
-    paddingVertical: Spacing.m,
-    borderRadius: Borders.radius.regular,
-    borderWidth: Borders.widths.thin,
-    borderColor: Colors.grey200,
-  },
-  numberWithTextContainer: {
-    flexDirection: 'row',
-    paddingVertical: Spacing.m,
+  baseInput: {
     justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: Borders.radius.regular,
-    borderWidth: Borders.widths.thin,
-    borderColor: Colors.grey200,
+    backgroundColor: Colors.white,
   },
-  numberPart: {
-    color: Colors.darkBlue,
-    ...Typography.googleSansCode.input,
-    textAlign: 'center',
-    marginRight: Spacing.sm,
-    lineHeight: 0,
+  pickerNoBorder: {
+    height: "auto",
+    border: "none",
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xs,
   },
   textPart: {
+    marginLeft: Spacing.xs,
     color: Colors.darkBlue,
     ...Typography.googleSansCode.xsRegular,
   },

@@ -24,7 +24,7 @@ import Spacing from '../../variables/spacing';
 import Typography from '../../variables/typography';
 
 import ArrowLeftIcon from '../../icons/arrowleft';
-import PickerInput from '../../components/picker';
+import PickerInput from '../../components/pickerinput';
 
 const window = Dimensions.get('window');
 

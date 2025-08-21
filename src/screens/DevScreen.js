@@ -18,8 +18,14 @@ import InputOptionBottomsheet from '../components/inputbottomsheet';
 import Navigation from '../components/navigation';
 import NavigationProgress from '../components/navigationprogress';
 import CustomSlider from '../components/slider';
-import PickerInput from '../components/picker';
+import PickerInput from '../components/pickerinput';
 import ExerciseRow from '../components/exerciserow'; // Add this import
+import RunningRow from '../components/runningrow'; // Add this import
+import BodyweightRow from '../components/bodyweightrow'; // Add this import
+import WarmUpRow from '../components/warmuprow'; // Add this import
+
+
+
 
 import Colors from '../variables/colors';
 
@@ -37,9 +43,6 @@ export default function DevScreen() {
   const [selectedRadio, setSelectedRadio] = useState(null);
   const [sliderValue, setSliderValue] = useState(50);
 
-  const [repValue, setRepValue] = useState('5');
-  const [unitValue, setUnitValue] = useState('5');
-  const [repetitionValue, setRepetitionValue] = useState('5');
 
   const toggleCheckbox = index => {
     setCheckboxes(prev => {
@@ -71,10 +74,29 @@ export default function DevScreen() {
           {/* Replace NumberInputs group with ExerciseRow */}
           <Text style={styles.sectionTitle}>Exercise Row Example</Text>
           <ExerciseRow
-            initialNumber="5"
+            initialNumber="1"
             radioSelected={selectedRadio === 0}
             onRadioChange={() => setSelectedRadio(0)}
           />
+
+          <RunningRow
+            initialNumber="1"
+            radioSelected={selectedRadio === 0}
+            onRadioChange={() => setSelectedRadio(0)}
+          />
+
+           <BodyweightRow
+            initialNumber="1"
+            radioSelected={selectedRadio === 0}
+            onRadioChange={() => setSelectedRadio(0)}
+          />
+
+          <WarmUpRow
+            initialNumber="50"
+            radioSelected={selectedRadio === 0}
+            onRadioChange={() => setSelectedRadio(0)}
+          />
+
 
           <Text style={styles.sectionTitle}>Button Regular</Text>
           <Button variant="primary" onClick={() => alert('Primario premuto')}>

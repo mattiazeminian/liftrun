@@ -16,15 +16,13 @@ const hapticOptions = {
 const CHECKBOX_SIZE = 16;
 const DOT_SIZE = 8;
 
-export default function ExerciseRow({
+export default function WarmUpRow({
   initialNumber = '10',
   disabled = false,
   showText = true,
 }) {
   const [checked, setChecked] = useState(false);
   const [value1, setValue1] = useState(initialNumber);
-  const [value2, setValue2] = useState(initialNumber);
-  const [value3, setValue3] = useState(initialNumber);
 
   const handleCheckboxPress = () => {
     if (!disabled) {
@@ -49,40 +47,17 @@ export default function ExerciseRow({
         disabled && styles.disabledContainer,
       ]}
     >
+
       <PickerInput
-        unitTitle="Sets"
+        unitTitle="Mins"
         value={value1}
-        onValueChange={handleValueChange(setValue1, 1, 9)}
-        unitText={null}
-        min={1}
-        max={9}
-        width={32}
-        style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false} // rimuove completamente lo spazio
-      />
-
-      <PickerInput
-        unitTitle="Weight"
-        value={value2}
-        onValueChange={handleValueChange(setValue2, 0, 999)}
-        unitText="KG"
-        min={0}
-        max={999}
-        width={72}
-        style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={showText} // mostra solo se showText è true
-      />
-
-      <PickerInput
-        unitTitle="Reps"
-        value={value3}
-        onValueChange={handleValueChange(setValue3, 0, 999)}
+        onValueChange={handleValueChange(setValue1, 0, 999)}
         unitText={null}
         min={0}
         max={999}
         width={48}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false} // rimuove completamente lo spazio
+        showUnitText={false}
       />
 
       <TouchableOpacity
@@ -147,7 +122,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   checkboxChecked: {
-    borderWidth: Borders.widths.regular,
+    borderWidth: Borders.widths.thin,
     borderColor: Colors.darkBlue,
   },
   checkboxDisabled: {

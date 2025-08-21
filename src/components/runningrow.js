@@ -16,7 +16,7 @@ const hapticOptions = {
 const CHECKBOX_SIZE = 16;
 const DOT_SIZE = 8;
 
-export default function ExerciseRow({
+export default function RunningRow({
   initialNumber = '10',
   disabled = false,
   showText = true,
@@ -24,7 +24,6 @@ export default function ExerciseRow({
   const [checked, setChecked] = useState(false);
   const [value1, setValue1] = useState(initialNumber);
   const [value2, setValue2] = useState(initialNumber);
-  const [value3, setValue3] = useState(initialNumber);
 
   const handleCheckboxPress = () => {
     if (!disabled) {
@@ -50,39 +49,27 @@ export default function ExerciseRow({
       ]}
     >
       <PickerInput
-        unitTitle="Sets"
+        unitTitle="Distance"
         value={value1}
-        onValueChange={handleValueChange(setValue1, 1, 9)}
-        unitText={null}
-        min={1}
-        max={9}
-        width={32}
-        style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false} // rimuove completamente lo spazio
-      />
-
-      <PickerInput
-        unitTitle="Weight"
-        value={value2}
-        onValueChange={handleValueChange(setValue2, 0, 999)}
-        unitText="KG"
+        onValueChange={handleValueChange(setValue1, 0, 999)}
+        unitText="KM"
         min={0}
         max={999}
         width={72}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={showText} // mostra solo se showText è true
+        showUnitText={showText}
       />
 
       <PickerInput
-        unitTitle="Reps"
-        value={value3}
-        onValueChange={handleValueChange(setValue3, 0, 999)}
+        unitTitle="Mins"
+        value={value2}
+        onValueChange={handleValueChange(setValue2, 0, 999)}
         unitText={null}
         min={0}
         max={999}
         width={48}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false} // rimuove completamente lo spazio
+        showUnitText={false}
       />
 
       <TouchableOpacity
@@ -121,7 +108,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   baseInput: {
-    borderColor: Colors.grey300,
+     borderColor: Colors.grey300,
     borderWidth: Borders.widths.thin,
     borderRadius: Borders.radius.regular,
   },
@@ -147,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   checkboxChecked: {
-    borderWidth: Borders.widths.regular,
+    borderWidth: Borders.widths.thin,
     borderColor: Colors.darkBlue,
   },
   checkboxDisabled: {
