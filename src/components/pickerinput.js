@@ -171,8 +171,8 @@ export default function PickerInput({
           style={[
             styles.inputContainer,
             { borderColor, opacity: disabled ? 0.6 : 1 },
-            Shadows.sm,
             isError && { borderColor: Colors.error },
+            Shadows.sm,
           ]}
         >
           {showText && (
@@ -300,8 +300,8 @@ const styles = StyleSheet.create({
     borderRadius: Borders.radius.regular,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.white,
     width: '100%', // occupa tutto lo spazio disponibile
+    backgroundColor: Colors.white,
   },
   input: {
     flex: 1,

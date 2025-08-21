@@ -23,9 +23,7 @@ import ExerciseRow from '../components/exerciserow/exerciserow'; // Add this imp
 import RunningRow from '../components/exerciserow/runningrow'; // Add this import
 import BodyweightRow from '../components/exerciserow/bodyweightrow'; // Add this import
 import WarmUpRow from '../components/exerciserow/warmuprow'; // Add this import
-
-
-
+import WarmUp from '../components/exercisewrapper/warmup'; // Add this import
 
 import Colors from '../variables/colors';
 
@@ -42,7 +40,6 @@ export default function DevScreen() {
   const [checkboxes, setCheckboxes] = useState([false, false, false, false]);
   const [selectedRadio, setSelectedRadio] = useState(null);
   const [sliderValue, setSliderValue] = useState(50);
-
 
   const toggleCheckbox = index => {
     setCheckboxes(prev => {
@@ -85,7 +82,7 @@ export default function DevScreen() {
             onRadioChange={() => setSelectedRadio(0)}
           />
 
-           <BodyweightRow
+          <BodyweightRow
             initialNumber="1"
             radioSelected={selectedRadio === 0}
             onRadioChange={() => setSelectedRadio(0)}
@@ -97,6 +94,12 @@ export default function DevScreen() {
             onRadioChange={() => setSelectedRadio(0)}
           />
 
+          <Text style={styles.sectionTitle}>Exercise Table</Text>
+          <WarmUp
+            title="Warmup Exercise"
+            buttonText="Edit"
+            onButtonPress={() => console.log('Edit pressed')}
+          />
 
           <Text style={styles.sectionTitle}>Button Regular</Text>
           <Button variant="primary" onClick={() => alert('Primario premuto')}>

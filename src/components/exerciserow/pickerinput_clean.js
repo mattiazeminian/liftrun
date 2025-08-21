@@ -18,10 +18,11 @@ import Typography from '../../variables/typography';
 import Borders from '../../variables/borders';
 import Shadows from '../../variables/shadows';
 
-const ITEM_HEIGHT = 50;
+const ITEM_HEIGHT = 50; // Height of each item in the FlatList
 const { height, width: SCREEN_WIDTH } = Dimensions.get('window');
-const MODAL_HEIGHT = height * 0.5;
+const MODAL_HEIGHT = height * 0.5; // Half the screen height for modal
 
+// Haptic feedback options
 const hapticOptions = {
   enableVibrateFallback: true,
   ignoreAndroidSystemSettings: false,
@@ -41,8 +42,10 @@ export default function PickerInput({
   width = 'auto',
   showUnitText = true,
 }) {
+  // Generate an array of numbers from min to max
   const numbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
 
+  // Clamp initial value between min and max
   const initialNumber = parseInt(value, 10);
   const clampedValue = Math.max(
     min,
@@ -50,15 +53,17 @@ export default function PickerInput({
   );
   const initialIndex = numbers.indexOf(clampedValue);
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [animating, setAnimating] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  // State
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility
+  const [animating, setAnimating] = useState(false); // Animation state
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex); // Currently selected index
 
-  const flatListRef = useRef(null);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(MODAL_HEIGHT)).current;
-  const lastHapticTimeRef = useRef(0);
+  const flatListRef = useRef(null); // Reference to FlatList for scrolling
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Fade animation for overlay
+  const slideAnim = useRef(new Animated.Value(MODAL_HEIGHT)).current; // Slide animation for modal
+  const lastHapticTimeRef = useRef(0); // Throttle haptic feedback
 
+  // Scroll to selected item when modal opens
   useEffect(() => {
     if (modalVisible && flatListRef.current) {
       flatListRef.current.scrollToOffset({
@@ -68,10 +73,12 @@ export default function PickerInput({
     }
   }, [modalVisible]);
 
+  // Trigger haptic feedback
   const triggerHaptic = () => {
     ReactNativeHapticFeedback.trigger('selection', hapticOptions);
   };
 
+  // Open modal with animation
   const openModal = () => {
     if (disabled || modalVisible || animating) return;
     triggerHaptic();
@@ -79,45 +86,48 @@ export default function PickerInput({
     setAnimating(true);
     Animated.parallel([
       Animated.timing(fadeAnim, {
-        toValue: 0.5,
+        toValue: 0.5, // Semi-transparent overlay
         duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: 0,
+        toValue: 0, // Slide modal up
         duration: 300,
         useNativeDriver: true,
       }),
     ]).start(() => setAnimating(false));
   };
 
+  // Close modal with animation and call onValueChange
   const closeModal = () => {
     if (animating) return;
     setAnimating(true);
     Animated.parallel([
       Animated.timing(fadeAnim, {
-        toValue: 0,
+        toValue: 0, // Fade out overlay
         duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: MODAL_HEIGHT,
+        toValue: MODAL_HEIGHT, // Slide modal down
         duration: 300,
         useNativeDriver: true,
       }),
     ]).start(() => {
       setAnimating(false);
       setModalVisible(false);
-      onValueChange(numbers[selectedIndex].toString());
+      onValueChange(numbers[selectedIndex].toString()); // Pass selected value
     });
   };
 
+  // Handle item selection
   const handleSelectIndex = index => {
     triggerHaptic();
     setSelectedIndex(index);
     closeModal();
   };
 
+  // Handle scrolling to update selected index and trigger haptic feedback
   const handleScroll = event => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -130,6 +140,7 @@ export default function PickerInput({
     }
   };
 
+  // Snap FlatList to nearest item after scrolling stops
   const handleMomentumScrollEnd = e => {
     const offsetY = e.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -141,6 +152,7 @@ export default function PickerInput({
 
   return (
     <View style={[styles.wrapper, style, { width }]}>
+      {/* Input area */}
       <TouchableWithoutFeedback onPress={openModal}>
         <View
           style={[
@@ -166,6 +178,7 @@ export default function PickerInput({
         </View>
       </TouchableWithoutFeedback>
 
+      {/* Error message */}
       <View style={styles.errorWrapper}>
         {isError ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
@@ -174,6 +187,7 @@ export default function PickerInput({
         )}
       </View>
 
+      {/* Modal */}
       <Modal
         visible={modalVisible}
         transparent
@@ -181,24 +195,29 @@ export default function PickerInput({
         onRequestClose={closeModal}
       >
         <View style={styles.wrapperModal}>
+          {/* Overlay with fade animation */}
           <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
             <TouchableWithoutFeedback onPress={closeModal}>
               <View style={styles.overlayTouchable} />
             </TouchableWithoutFeedback>
           </Animated.View>
 
+          {/* Sliding modal */}
           <Animated.View
             style={[
               styles.modalWrapper,
               { width: SCREEN_WIDTH, transform: [{ translateY: slideAnim }] },
             ]}
           >
+            {/* Drag handle */}
             <View style={styles.handleWrapper}>
               <View style={styles.handleBar} />
             </View>
 
+            {/* Title */}
             <Text style={styles.title}>{unitTitle}</Text>
 
+            {/* Scrollable number list */}
             <View style={styles.scrollWrapper}>
               <FlatList
                 keyboardShouldPersistTaps="handled"
@@ -206,7 +225,7 @@ export default function PickerInput({
                 data={numbers}
                 keyExtractor={item => item.toString()}
                 showsVerticalScrollIndicator={false}
-                snapToInterval={ITEM_HEIGHT}
+                snapToInterval={ITEM_HEIGHT} // Snap to item height
                 decelerationRate="fast"
                 contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * 2 }}
                 getItemLayout={(_, index) => ({

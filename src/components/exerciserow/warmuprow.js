@@ -24,6 +24,7 @@ export default function WarmUpRow({
   const [checked, setChecked] = useState(false);
   const [value1, setValue1] = useState(initialNumber);
 
+  // Toggle checkbox with haptic feedback
   const handleCheckboxPress = () => {
     if (!disabled) {
       ReactNativeHapticFeedback.trigger('rigid', hapticOptions);
@@ -31,6 +32,7 @@ export default function WarmUpRow({
     }
   };
 
+  // Enforce numeric input bounds
   const handleValueChange = (setter, min, max) => val => {
     let num = parseInt(val, 10);
     if (isNaN(num)) num = min;
@@ -47,7 +49,6 @@ export default function WarmUpRow({
         disabled && styles.disabledContainer,
       ]}
     >
-
       <PickerInput
         unitTitle="Mins"
         value={value1}

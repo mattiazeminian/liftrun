@@ -1,30 +1,32 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import Colors from '../../variables/colors';
 import Spacing from '../../variables/spacing';
 import Borders from '../../variables/borders';
+import Typography from '../../variables/typography';
 
 import PickerInput from './pickerinput_clean';
 
+// Haptic feedback configuration
 const hapticOptions = {
   enableVibrateFallback: true,
   ignoreAndroidSystemSettings: false,
 };
 
-const CHECKBOX_SIZE = 16;
-const DOT_SIZE = 8;
+const CHECKBOX_SIZE = 16; // Size of the checkbox square
+const DOT_SIZE = 8; // Size of the inner dot when checked
 
 export default function BodyweightRow({
-  initialNumber = '10',
-  disabled = false,
-  showText = true,
+  initialNumber = '10', // Default initial value
+  disabled = false, // Disable interactions
+  showText = true, // Control showing unit text (not used here, but kept for consistency)
 }) {
-  const [checked, setChecked] = useState(false);
-  const [value1, setValue1] = useState(initialNumber);
-  const [value2, setValue2] = useState(initialNumber);
+  const [checked, setChecked] = useState(false); // Checkbox state
+  const [value1, setValue1] = useState(initialNumber); // Minutes input
 
+  // Toggle checkbox state with haptic feedback
   const handleCheckboxPress = () => {
     if (!disabled) {
       ReactNativeHapticFeedback.trigger('rigid', hapticOptions);
@@ -32,6 +34,7 @@ export default function BodyweightRow({
     }
   };
 
+  // Handle input value changes with min/max clamping
   const handleValueChange = (setter, min, max) => val => {
     let num = parseInt(val, 10);
     if (isNaN(num)) num = min;
@@ -48,30 +51,25 @@ export default function BodyweightRow({
         disabled && styles.disabledContainer,
       ]}
     >
-      <PickerInput
-        unitTitle="Sets"
-        value={value1}
-        onValueChange={handleValueChange(setValue1, 1, 9)}
-        unitText={null}
-        min={1}
-        max={9}
-        width={32}
-        style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false} // rimuove completamente lo spazio
-      />
+      {/* Static text for reps/counter */}
+      <View style={[styles.reps]}>
+        <Text style={[styles.staticText]}>1</Text>
+      </View>
 
+      {/* Single PickerInput for minutes */}
       <PickerInput
         unitTitle="Mins"
-        value={value2}
-        onValueChange={handleValueChange(setValue2, 0, 999)}
-        unitText={null}
+        value={value1}
+        onValueChange={handleValueChange(setValue1, 0, 999)}
+        unitText={null} // No unit text shown
         min={0}
         max={999}
         width={48}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false}
+        showUnitText={false} // Hides the unit text space completely
       />
 
+      {/* Checkbox for completion */}
       <TouchableOpacity
         style={styles.checkboxWrapper}
         onPress={handleCheckboxPress}
@@ -85,7 +83,8 @@ export default function BodyweightRow({
             disabled && styles.checkboxDisabled,
           ]}
         >
-          {checked && <View style={styles.innerDot} />}
+          {checked && <View style={styles.innerDot} />}{' '}
+          {/* Inner dot shows only when checked */}
         </View>
       </TouchableOpacity>
     </View>
@@ -102,10 +101,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerChecked: {
-    backgroundColor: '#D5D9EB',
+    backgroundColor: '#D5D9EB', // Highlight when checked
   },
   disabledContainer: {
-    opacity: 0.5,
+    opacity: 0.5, // Dim when disabled
   },
   baseInput: {
     borderColor: Colors.grey300,
@@ -113,7 +112,17 @@ const styles = StyleSheet.create({
     borderRadius: Borders.radius.regular,
   },
   baseInputChecked: {
-    borderColor: Colors.darkBlue,
+    borderColor: Colors.darkBlue, // Highlight border if checked
+  },
+  reps: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 32,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  staticText: {
+    ...Typography.googleSansCode.input,
   },
   checkboxWrapper: {
     width: 48,

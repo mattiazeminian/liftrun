@@ -25,6 +25,7 @@ export default function RunningRow({
   const [value1, setValue1] = useState(initialNumber);
   const [value2, setValue2] = useState(initialNumber);
 
+  // Toggle checkbox with haptic feedback
   const handleCheckboxPress = () => {
     if (!disabled) {
       ReactNativeHapticFeedback.trigger('rigid', hapticOptions);
@@ -32,6 +33,7 @@ export default function RunningRow({
     }
   };
 
+  // Ensure numeric input stays within bounds
   const handleValueChange = (setter, min, max) => val => {
     let num = parseInt(val, 10);
     if (isNaN(num)) num = min;
@@ -57,7 +59,7 @@ export default function RunningRow({
         max={999}
         width={72}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={showText}
+        showUnitText={showText} // Show unit only if `showText` is true
       />
 
       <PickerInput
@@ -69,7 +71,7 @@ export default function RunningRow({
         max={999}
         width={48}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false}
+        showUnitText={false} // Always hide unit for minutes
       />
 
       <TouchableOpacity
@@ -108,7 +110,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   baseInput: {
-     borderColor: Colors.grey300,
+    borderColor: Colors.grey300,
     borderWidth: Borders.widths.thin,
     borderRadius: Borders.radius.regular,
   },
