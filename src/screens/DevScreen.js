@@ -24,6 +24,7 @@ import RunningRow from '../components/exerciserow/runningrow'; // Add this impor
 import BodyweightRow from '../components/exerciserow/bodyweightrow'; // Add this import
 import WarmUpRow from '../components/exerciserow/warmuprow'; // Add this import
 import WarmUp from '../components/exercisewrapper/warmup'; // Add this import
+import Running from '../components/exercisewrapper/running'; // Add this import
 
 import Colors from '../variables/colors';
 
@@ -97,6 +98,11 @@ export default function DevScreen() {
           <Text style={styles.sectionTitle}>Exercise Table</Text>
           <WarmUp
             title="Warmup Exercise"
+            buttonText="Edit"
+            onButtonPress={() => console.log('Edit pressed')}
+          />
+          <Running
+            title="Long Run"
             buttonText="Edit"
             onButtonPress={() => console.log('Edit pressed')}
           />
