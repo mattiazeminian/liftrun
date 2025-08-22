@@ -22,7 +22,6 @@ const ITEM_HEIGHT = 50; // Height of each item in the FlatList
 const { height, width: SCREEN_WIDTH } = Dimensions.get('window');
 const MODAL_HEIGHT = height * 0.5; // Half the screen height for modal
 
-// Haptic feedback options
 const hapticOptions = {
   enableVibrateFallback: true,
   ignoreAndroidSystemSettings: false,
@@ -41,12 +40,12 @@ export default function PickerInput({
   unitText = 'KG',
   width = 'auto',
   showUnitText = true,
-  step = 1, // 👈 nuova prop per gestire i decimali
+  step = 1, // New prop for decimal steps
 }) {
-  // Generate an array of numbers from min to max
+  // Generate an array of numbers with fixed 2 decimals
   const numbers = Array.from(
     { length: Math.floor((max - min) / step) + 1 },
-    (_, i) => parseFloat((min + i * step).toFixed(1))
+    (_, i) => parseFloat((min + i * step).toFixed(2))
   );
 
   // Clamp initial value between min and max
@@ -55,17 +54,17 @@ export default function PickerInput({
     min,
     Math.min(max, isNaN(initialNumber) ? min : initialNumber),
   );
-  const initialIndex = numbers.indexOf(clampedValue);
+  const initialIndex = numbers.findIndex(num => Math.abs(num - clampedValue) < 0.001);
 
-  // State
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility
-  const [animating, setAnimating] = useState(false); // Animation state
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex); // Currently selected index
+  // Component state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex >= 0 ? initialIndex : 0);
 
-  const flatListRef = useRef(null); // Reference to FlatList for scrolling
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Fade animation for overlay
-  const slideAnim = useRef(new Animated.Value(MODAL_HEIGHT)).current; // Slide animation for modal
-  const lastHapticTimeRef = useRef(0); // Throttle haptic feedback
+  const flatListRef = useRef(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(MODAL_HEIGHT)).current;
+  const lastHapticTimeRef = useRef(0);
 
   // Scroll to selected item when modal opens
   useEffect(() => {
@@ -77,7 +76,7 @@ export default function PickerInput({
     }
   }, [modalVisible]);
 
-  // Trigger haptic feedback
+  // Haptic feedback trigger
   const triggerHaptic = () => {
     ReactNativeHapticFeedback.trigger('selection', hapticOptions);
   };
@@ -90,48 +89,48 @@ export default function PickerInput({
     setAnimating(true);
     Animated.parallel([
       Animated.timing(fadeAnim, {
-        toValue: 0.5, // Semi-transparent overlay
+        toValue: 0.5,
         duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: 0, // Slide modal up
+        toValue: 0,
         duration: 300,
         useNativeDriver: true,
       }),
     ]).start(() => setAnimating(false));
   };
 
-  // Close modal with animation and call onValueChange
+  // Close modal with animation and notify selection
   const closeModal = () => {
     if (animating) return;
     setAnimating(true);
     Animated.parallel([
       Animated.timing(fadeAnim, {
-        toValue: 0, // Fade out overlay
+        toValue: 0,
         duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: MODAL_HEIGHT, // Slide modal down
+        toValue: MODAL_HEIGHT,
         duration: 300,
         useNativeDriver: true,
       }),
     ]).start(() => {
       setAnimating(false);
       setModalVisible(false);
-      onValueChange(numbers[selectedIndex].toString()); // Pass selected value
+      onValueChange(numbers[selectedIndex].toString());
     });
   };
 
-  // Handle item selection
+  // Handle selection tap
   const handleSelectIndex = index => {
     triggerHaptic();
     setSelectedIndex(index);
     closeModal();
   };
 
-  // Handle scrolling to update selected index and trigger haptic feedback
+  // Update selected index on scroll with haptic throttling
   const handleScroll = event => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -144,7 +143,7 @@ export default function PickerInput({
     }
   };
 
-  // Snap FlatList to nearest item after scrolling stops
+  // Snap to nearest item on scroll end
   const handleMomentumScrollEnd = e => {
     const offsetY = e.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -199,7 +198,7 @@ export default function PickerInput({
         onRequestClose={closeModal}
       >
         <View style={styles.wrapperModal}>
-          {/* Overlay with fade animation */}
+          {/* Overlay with fade */}
           <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
             <TouchableWithoutFeedback onPress={closeModal}>
               <View style={styles.overlayTouchable} />
@@ -221,7 +220,7 @@ export default function PickerInput({
             {/* Title */}
             <Text style={styles.title}>{unitTitle}</Text>
 
-            {/* Scrollable number list */}
+            {/* Scrollable list */}
             <View style={styles.scrollWrapper}>
               <FlatList
                 keyboardShouldPersistTaps="handled"
@@ -229,7 +228,7 @@ export default function PickerInput({
                 data={numbers}
                 keyExtractor={item => item.toString()}
                 showsVerticalScrollIndicator={false}
-                snapToInterval={ITEM_HEIGHT} // Snap to item height
+                snapToInterval={ITEM_HEIGHT}
                 decelerationRate="fast"
                 contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * 2 }}
                 getItemLayout={(_, index) => ({
@@ -258,7 +257,8 @@ export default function PickerInput({
                           isSelected && styles.selectedItemText,
                         ]}
                       >
-                        {step === 1 ? item : item.toFixed(1)}{' '}
+                        {/* Show decimals if step < 1 */}
+                        {step >= 1 ? item.toString() : item.toFixed(2)}{' '}
                         <Text style={styles.cmTextInline}>{unitText}</Text>
                       </Text>
                     </TouchableOpacity>
