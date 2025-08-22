@@ -41,12 +41,16 @@ export default function PickerInput({
   unitText = 'KG',
   width = 'auto',
   showUnitText = true,
+  step = 1, // 👈 nuova prop per gestire i decimali
 }) {
   // Generate an array of numbers from min to max
-  const numbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  const numbers = Array.from(
+    { length: Math.floor((max - min) / step) + 1 },
+    (_, i) => parseFloat((min + i * step).toFixed(1))
+  );
 
   // Clamp initial value between min and max
-  const initialNumber = parseInt(value, 10);
+  const initialNumber = parseFloat(value);
   const clampedValue = Math.max(
     min,
     Math.min(max, isNaN(initialNumber) ? min : initialNumber),
@@ -254,7 +258,7 @@ export default function PickerInput({
                           isSelected && styles.selectedItemText,
                         ]}
                       >
-                        {item}{' '}
+                        {step === 1 ? item : item.toFixed(1)}{' '}
                         <Text style={styles.cmTextInline}>{unitText}</Text>
                       </Text>
                     </TouchableOpacity>

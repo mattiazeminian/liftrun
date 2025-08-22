@@ -84,8 +84,12 @@ export default function Running() {
           opacity,
         }}
       >
-        <SmallButton onPress={() => handleDeleteRow(id)} variant="danger">
-          Remove
+        <SmallButton
+          style={{ marginLeft: 8 }}
+          onPress={() => handleDeleteRow(id)}
+          variant="danger"
+        >
+          <Text>Remove</Text>
         </SmallButton>
       </Animated.View>
     );
@@ -117,14 +121,16 @@ export default function Running() {
               variant="danger"
               style={{ marginRight: 8 }}
             >
-              Delete
+              <Text>Delete</Text>
             </SmallButton>
           )}
           <SmallButton
             onPress={editing ? handleCloseOrSave : startEditing}
             variant={editing && tempTitle !== title ? 'active' : 'default'}
           >
-            {editing ? (tempTitle !== title ? 'SAVE' : 'CLOSE') : 'Edit'}
+            <Text>
+              {editing ? (tempTitle !== title ? 'SAVE' : 'CLOSE') : 'Edit'}
+            </Text>
           </SmallButton>
         </View>
       </View>
@@ -162,7 +168,7 @@ export default function Running() {
         style={{ alignSelf: 'center', flexDirection: 'row' }}
       >
         <Text style={{ marginRight: 4 }}>+</Text>
-        ADD
+        <Text>ADD</Text>
       </SmallButton>
     </View>
   );

@@ -19,12 +19,12 @@ import Navigation from '../components/navigation';
 import NavigationProgress from '../components/navigationprogress';
 import CustomSlider from '../components/slider';
 import PickerInput from '../components/pickerinput';
-import ExerciseRow from '../components/exerciserow/exerciserow'; // Add this import
-import RunningRow from '../components/exerciserow/runningrow'; // Add this import
-import BodyweightRow from '../components/exerciserow/bodyweightrow'; // Add this import
-import WarmUpRow from '../components/exerciserow/warmuprow'; // Add this import
-import WarmUp from '../components/exercisewrapper/warmup'; // Add this import
-import Running from '../components/exercisewrapper/running'; // Add this import
+import ExerciseRow from '../components/exerciserow/exerciserow';
+import RunningRow from '../components/exerciserow/runningrow';
+import BodyweightRow from '../components/exerciserow/bodyweightrow';
+import WarmUpRow from '../components/exerciserow/warmuprow';
+import WarmUp from '../components/exercisewrapper/warmup';
+import Running from '../components/exercisewrapper/running';
 
 import Colors from '../variables/colors';
 
@@ -109,7 +109,7 @@ export default function DevScreen() {
 
           <Text style={styles.sectionTitle}>Button Regular</Text>
           <Button variant="primary" onClick={() => alert('Primario premuto')}>
-            SIGN IN
+            <Text>SIGN IN</Text>
           </Button>
 
           <Button
@@ -117,7 +117,7 @@ export default function DevScreen() {
             style={styles.button}
             onClick={() => alert('Secondario premuto')}
           >
-            SIGN UP
+            <Text>SIGN UP</Text>
           </Button>
 
           <Button
@@ -125,21 +125,21 @@ export default function DevScreen() {
             style={styles.button}
             onClick={() => alert('Terziario premuto')}
           >
-            Terziario
+            <Text>Terziario</Text>
           </Button>
 
           <Text style={styles.sectionTitle}>Small Buttons</Text>
 
           <SmallButton variant="default" onPress={() => alert('Small Default')}>
-            EDIT
+            <Text>EDIT</Text>
           </SmallButton>
 
           <SmallButton variant="active" onPress={() => alert('Small Active')}>
-            DONE
+            <Text>DONE</Text>
           </SmallButton>
 
           <SmallButton variant="danger" onPress={() => alert('Small Danger')}>
-            REMOVE
+            <Text>REMOVE</Text>
           </SmallButton>
 
           <Text style={styles.sectionTitle}>Picker Input</Text>
@@ -198,7 +198,9 @@ export default function DevScreen() {
             style={{ width: '100%' }}
           />
 
-          <Text>Valore slider: {sliderValue}</Text>
+          <Text>
+            Valore slider: <Text>{sliderValue}</Text>
+          </Text>
 
           <Text style={styles.sectionTitle}>Checkbox Group</Text>
 
@@ -296,5 +298,8 @@ const styles = StyleSheet.create({
   },
   radio: {
     marginVertical: 4,
+  },
+  button: {
+    marginTop: 8,
   },
 });

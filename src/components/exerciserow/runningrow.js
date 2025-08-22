@@ -17,13 +17,13 @@ const CHECKBOX_SIZE = 16;
 const DOT_SIZE = 8;
 
 export default function RunningRow({
-  initialNumber = '10',
+  initialNumber = '10.0',
   disabled = false,
   showText = true,
 }) {
   const [checked, setChecked] = useState(false);
-  const [value1, setValue1] = useState(initialNumber);
-  const [value2, setValue2] = useState(initialNumber);
+  const [distance, setDistance] = useState(initialNumber); // distance uses decimals
+  const [mins, setMins] = useState('0'); // minutes stay integer
 
   // Toggle checkbox with haptic feedback
   const handleCheckboxPress = () => {
@@ -33,13 +33,22 @@ export default function RunningRow({
     }
   };
 
-  // Ensure numeric input stays within bounds
-  const handleValueChange = (setter, min, max) => val => {
+  // Distance -> float with 1 decimal (e.g. 0.0, 1.2, 5.0)
+  const handleDistanceChange = val => {
+    let num = parseFloat(val);
+    if (isNaN(num)) num = 0.0;
+    if (num < 0) num = 0.0;
+    if (num > 999) num = 999.0;
+    setDistance(num.toFixed(1));
+  };
+
+  // Minutes -> integer only
+  const handleMinsChange = val => {
     let num = parseInt(val, 10);
-    if (isNaN(num)) num = min;
-    if (num < min) num = min;
-    if (num > max) num = max;
-    setter(String(num));
+    if (isNaN(num)) num = 0;
+    if (num < 0) num = 0;
+    if (num > 999) num = 999;
+    setMins(String(num));
   };
 
   return (
@@ -52,11 +61,12 @@ export default function RunningRow({
     >
       <PickerInput
         unitTitle="Distance"
-        value={value1}
-        onValueChange={handleValueChange(setValue1, 0, 999)}
+        value={distance}
+        onValueChange={handleDistanceChange}
         unitText="KM"
-        min={0}
-        max={999}
+        min={0.0}
+        max={999.0}
+        step={0.1} // 👈 important: allow decimal increments inside picker
         width={72}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
         showUnitText={showText} // Show unit only if `showText` is true
@@ -64,11 +74,12 @@ export default function RunningRow({
 
       <PickerInput
         unitTitle="Mins"
-        value={value2}
-        onValueChange={handleValueChange(setValue2, 0, 999)}
+        value={mins}
+        onValueChange={handleMinsChange}
         unitText={null}
         min={0}
         max={999}
+        step={1} 
         width={48}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
         showUnitText={false} // Always hide unit for minutes
