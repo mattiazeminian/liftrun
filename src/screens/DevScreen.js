@@ -26,6 +26,8 @@ import WarmUpRow from '../components/exerciserow/warmuprow';
 import WarmUp from '../components/exercisewrapper/warmup';
 import Running from '../components/exercisewrapper/running';
 import Exercise from '../components/exercisewrapper/exercise';
+import Bodyweight from '../components/exercisewrapper/bodyweight';
+
 
 import Colors from '../variables/colors';
 
@@ -109,6 +111,11 @@ export default function DevScreen() {
           />
 
           <Exercise
+            title="SQUAT"
+            buttonText="Edit"
+            onButtonPress={() => console.log('Edit pressed')}
+          />
+          <Bodyweight
             title="SQUAT"
             buttonText="Edit"
             onButtonPress={() => console.log('Edit pressed')}

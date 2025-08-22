@@ -9,24 +9,25 @@ import Typography from '../../variables/typography';
 
 import PickerInput from './pickerinput_clean';
 
-// Haptic feedback configuration
 const hapticOptions = {
   enableVibrateFallback: true,
   ignoreAndroidSystemSettings: false,
 };
 
-const CHECKBOX_SIZE = 16; // Size of the checkbox square
-const DOT_SIZE = 8; // Size of the inner dot when checked
+const CHECKBOX_SIZE = 16;
+const DOT_SIZE = 8;
 
 export default function BodyweightRow({
-  initialNumber = '10', // Default initial value
-  disabled = false, // Disable interactions
-  showText = true, // Control showing unit text (not used here, but kept for consistency)
+  setNumber = 1,
+  initialNumber = '10',
+  disabled = false,
+  showText = true,
+  onChangeValue = () => {},
 }) {
-  const [checked, setChecked] = useState(false); // Checkbox state
-  const [value1, setValue1] = useState(initialNumber); // Minutes input
+  const [checked, setChecked] = useState(false);
+  const [value1, setValue1] = useState(initialNumber);
 
-  // Toggle checkbox state with haptic feedback
+  // Toggle checkbox with haptic feedback
   const handleCheckboxPress = () => {
     if (!disabled) {
       ReactNativeHapticFeedback.trigger('rigid', hapticOptions);
@@ -34,13 +35,14 @@ export default function BodyweightRow({
     }
   };
 
-  // Handle input value changes with min/max clamping
-  const handleValueChange = (setter, min, max) => val => {
+  // Handle value changes with min/max clamp
+  const handleValueChange = val => {
     let num = parseInt(val, 10);
-    if (isNaN(num)) num = min;
-    if (num < min) num = min;
-    if (num > max) num = max;
-    setter(String(num));
+    if (isNaN(num)) num = 0;
+    if (num < 0) num = 0;
+    if (num > 999) num = 999;
+    setValue1(String(num));
+    onChangeValue(String(num));
   };
 
   return (
@@ -51,25 +53,26 @@ export default function BodyweightRow({
         disabled && styles.disabledContainer,
       ]}
     >
-      {/* Static text for reps/counter */}
-      <View style={[styles.reps]}>
-        <Text style={[styles.staticText]}>1</Text>
+      {/* Dynamic set number */}
+      <View style={styles.sets}>
+        <Text style={styles.staticText}>{setNumber}</Text>
       </View>
 
       {/* Single PickerInput for minutes */}
       <PickerInput
-        unitTitle="Mins"
+        unitTitle="Reps"
         value={value1}
-        onValueChange={handleValueChange(setValue1, 0, 999)}
-        unitText={null} // No unit text shown
+        onValueChange={handleValueChange}
+        unitText={null}
         min={0}
         max={999}
         width={48}
         style={[styles.baseInput, checked && styles.baseInputChecked]}
-        showUnitText={false} // Hides the unit text space completely
+        showUnitText={false}
+        disabled={disabled}
       />
 
-      {/* Checkbox for completion */}
+      {/* Checkbox */}
       <TouchableOpacity
         style={styles.checkboxWrapper}
         onPress={handleCheckboxPress}
@@ -83,8 +86,7 @@ export default function BodyweightRow({
             disabled && styles.checkboxDisabled,
           ]}
         >
-          {checked && <View style={styles.innerDot} />}{' '}
-          {/* Inner dot shows only when checked */}
+          {checked && <View style={styles.innerDot} />}
         </View>
       </TouchableOpacity>
     </View>
@@ -101,10 +103,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerChecked: {
-    backgroundColor: '#D5D9EB', // Highlight when checked
+    backgroundColor: '#D5D9EB',
   },
   disabledContainer: {
-    opacity: 0.5, // Dim when disabled
+    opacity: 0.5,
   },
   baseInput: {
     borderColor: Colors.grey300,
@@ -112,9 +114,9 @@ const styles = StyleSheet.create({
     borderRadius: Borders.radius.regular,
   },
   baseInputChecked: {
-    borderColor: Colors.darkBlue, // Highlight border if checked
+    borderColor: Colors.darkBlue,
   },
-  reps: {
+  sets: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 32,
